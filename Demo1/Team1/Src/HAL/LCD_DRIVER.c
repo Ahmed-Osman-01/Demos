@@ -47,8 +47,13 @@ typedef struct
     u8_t U_length;
     u8_t U_State;
     u8_t U_Type;
+    u8_t X_Position;
+    u8_t Y_Position;
+    u8_t Curr_Pos;
+    CallBack_t CallBack;
 } User_Req_t;
 
+/*
 typedef struct
 {
     u8_t Curr_Pos;
@@ -66,7 +71,7 @@ typedef struct
     u8_t Y_Position;
     CallBack_t CallBack;
 } SetP_Req_t;
-
+*/
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
@@ -75,9 +80,9 @@ static u8_t LCD_State = LCD_STATE_OFF;
 static u8_t LCD_DigitCounter = 0;
 static User_Req_t User_Resquest[LCD_MAX_BUFFER_SIZE];
 static u8_t User_CurrentRequest = 0;
-static Write_Req_t Write_Request;
-static Clear_Req_t Clear_Request;
-static SetP_Req_t SetP_Request;
+// static Write_Req_t Write_Request;
+// static Clear_Req_t Clear_Request;
+// static SetP_Req_t SetP_Request;
 /********************************************************************************************************/
 /*****************************************Static Functions Prototype*************************************/
 /********************************************************************************************************/
@@ -136,7 +141,8 @@ Error_Status LCD_WriteStringAsync(u8_t *string, u8_t length, CallBack_t CB)
         {
             User_Resquest[Index].U_string = string;
             User_Resquest[Index].U_length = length;
-            Write_Request.CallBack = CB;
+            User_Resquest[Index].Curr_Pos = 0;
+            User_Resquest[Index].CallBack = CB;
             User_Resquest[Index].U_Type = LCD_REQ_TYPE_WRITE;
             User_Resquest[Index].U_State = LCD_USER_STATE_BUSY;
 
@@ -164,9 +170,9 @@ Error_Status LCD_SetCursorPositionAsync(u8_t X_pos, u8_t Y_pos, CallBack_t CB)
     {
         if (User_Resquest[Index].U_State == LCD_USER_STATE_READY)
         {
-            SetP_Request.X_Position = X_pos;
-            SetP_Request.Y_Position = Y_pos;
-            SetP_Request.CallBack = CB;
+            User_Resquest[Index].X_Position = X_pos;
+            User_Resquest[Index].Y_Position = Y_pos;
+            User_Resquest[Index].CallBack = CB;
             User_Resquest[Index].U_Type = LCD_REQ_TYPE_SET_P;
             User_Resquest[Index].U_State = LCD_USER_STATE_BUSY;
             break;
@@ -193,7 +199,7 @@ Error_Status LCD_ClearScreenAsync(CallBack_t CB)
     {
         if (User_Resquest[Index].U_State == LCD_USER_STATE_READY)
         {
-            Clear_Request.CallBack = CB;
+            User_Resquest[Index].CallBack = CB;
             User_Resquest[Index].U_Type = LCD_REQ_TYPE_CLEAR;
             User_Resquest[Index].U_State = LCD_USER_STATE_BUSY;
             break;
@@ -280,28 +286,8 @@ static void Init_State_Func()
     u8_t LOC_DisplayClearCommand = LCD_4_PIN_COMMAND_CLEAR;
     u8_t LOC_EntryModeCommand = LCD_4_PIN_COMMAND_ENTRY;
 
-//  if (Init_Call_Count < 4)
-//  {
-//      /*first call of the function set command*/
-//      LCD_WriteToPins(0x03, WRITE_COMMAND_STATE);
-//      Init_Call_Count++;
-//  }
-//
-//  else if (Init_Call_Count < 6)
-//  {
-//      /*first call of the function set command*/
-//      Init_Call_Count++;
-//  }
-//
-//  else if (Init_Call_Count < 10)
-//  {
-//      /*first call of the function set command*/
-//      LCD_WriteToPins(0x33, WRITE_COMMAND_STATE);
-//      Init_Call_Count++;
-//  }
-//
     /********************************** call the function set command **********************************/
-     if (Init_Call_Count < 4)
+    if (Init_Call_Count < 4)
     {
         /*first call of the function set command*/
         LCD_WriteToPins(LOC_FunctionSetCommand, WRITE_COMMAND_STATE);
@@ -461,41 +447,78 @@ static void LCD_WriteToPins(u8_t Info, u8_t State)
 }
 #endif
 
+#if NUMBER_OF_DATA_LINES == DATA_8_PINS
 static void OperationState_WriteFunc()
 {
-
     static u8_t write_state = STATIC_STATE_READY;
-#if NUMBER_OF_DATA_LINES == DATA_4_PINS
-    static u8_t CommandState = 0;
-#endif
-#if NUMBER_OF_DATA_LINES == DATA_8_PINS
 
-    if (Write_Request.Curr_Pos < User_Resquest[User_CurrentRequest].U_length)
+    if (User_Resquest[User_CurrentRequest].Curr_Pos < User_Resquest[User_CurrentRequest].U_length)
     {
         switch (write_state)
         {
         case STATIC_STATE_READY:
-            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + Write_Request.Curr_Pos), WRITE_DATA_STATE);
+            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + User_Resquest[User_CurrentRequest].Curr_Pos), WRITE_DATA_STATE);
             write_state = STATIC_STATE_BUSY;
             break;
         case STATIC_STATE_BUSY:
-            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + Write_Request.Curr_Pos), WRITE_DATA_STATE);
+            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + User_Resquest[User_CurrentRequest].Curr_Pos), WRITE_DATA_STATE);
             write_state = STATIC_STATE_READY;
-            Write_Request.Curr_Pos++;
+            User_Resquest[User_CurrentRequest].Curr_Pos++;
             break;
 
         default:
             break;
         }
     }
+    else
+    {
+        User_Resquest[User_CurrentRequest].U_State = LCD_USER_STATE_READY;
+        User_Resquest[User_CurrentRequest].Curr_Pos = 0;
+
+        User_CurrentRequest++;
+        if (User_Resquest[User_CurrentRequest].U_State == LCD_USER_STATE_READY || User_CurrentRequest == LCD_MAX_BUFFER_SIZE)
+        {
+            User_CurrentRequest = 0;
+        }
+
+        //   LCD_DigitCounter++;
+        //
+        //   /*check if the current position is the end of the first line*/
+        //   if (LCD_DigitCounter == NUM_OF_DIGITS)
+        //   {
+        //       /*go to the beginning of the second line*/
+        //       LCD_SetCursorPositionAsync(1, 0, NULL);
+        //   }
+        //   /*check if the current position is the end of the second line*/
+        //   else if (LCD_DigitCounter == NUM_OF_DIGITS * 2)
+        //   {
+        //       /*go to the beginning of the first line*/
+        //       LCD_SetCursorPositionAsync(0, 0, NULL);
+        //   }
+        //   else
+        //   {
+        //       /*do nothing*/
+        //   }
+
+        if (User_CurrentRequest && User_Resquest[User_CurrentRequest - 1].CallBack)
+        {
+            User_Resquest[User_CurrentRequest - 1].CallBack();
+        }
+    }
+}
 #endif
+
 #if NUMBER_OF_DATA_LINES == DATA_4_PINS
-    if (Write_Request.Curr_Pos < User_Resquest[User_CurrentRequest].U_length)
+static void OperationState_WriteFunc()
+{
+    static u8_t write_state = STATIC_STATE_READY;
+    static u8_t CommandState = 0;
+    if (User_Resquest[User_CurrentRequest].Curr_Pos < User_Resquest[User_CurrentRequest].U_length)
     {
         switch (write_state)
         {
         case STATIC_STATE_READY:
-            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + Write_Request.Curr_Pos), WRITE_DATA_STATE);
+            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + User_Resquest[User_CurrentRequest].Curr_Pos), WRITE_DATA_STATE);
             if (CommandState)
             {
                 write_state = STATIC_STATE_BUSY;
@@ -507,11 +530,11 @@ static void OperationState_WriteFunc()
             }
             break;
         case STATIC_STATE_BUSY:
-            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + Write_Request.Curr_Pos), WRITE_DATA_STATE);
+            LCD_WriteToPins(*(User_Resquest[User_CurrentRequest].U_string + User_Resquest[User_CurrentRequest].Curr_Pos), WRITE_DATA_STATE);
             if (CommandState)
             {
                 write_state = STATIC_STATE_READY;
-                Write_Request.Curr_Pos++;
+                User_Resquest[User_CurrentRequest].Curr_Pos++;
                 CommandState = 0;
             }
             else
@@ -524,11 +547,10 @@ static void OperationState_WriteFunc()
             break;
         }
     }
-#endif
     else
     {
         User_Resquest[User_CurrentRequest].U_State = LCD_USER_STATE_READY;
-        Write_Request.Curr_Pos = 0;
+        User_Resquest[User_CurrentRequest].Curr_Pos = 0;
 
         User_CurrentRequest++;
         if (User_Resquest[User_CurrentRequest].U_State == LCD_USER_STATE_READY || User_CurrentRequest == LCD_MAX_BUFFER_SIZE)
@@ -536,40 +558,39 @@ static void OperationState_WriteFunc()
             User_CurrentRequest = 0;
         }
 
-        LCD_DigitCounter++;
+        //    LCD_DigitCounter++;
+        //
+        //    /*check if the current position is the end of the first line*/
+        //    if (LCD_DigitCounter == NUM_OF_DIGITS)
+        //    {
+        //        /*go to the beginning of the second line*/
+        //        LCD_SetCursorPositionAsync(1, 0, NULL);
+        //    }
+        //    /*check if the current position is the end of the second line*/
+        //    else if (LCD_DigitCounter == NUM_OF_DIGITS * 2)
+        //    {
+        //        /*go to the beginning of the first line*/
+        //        LCD_SetCursorPositionAsync(0, 0, NULL);
+        //    }
+        //    else
+        //    {
+        //        /*do nothing*/
+        //    }
 
-        /*check if the current position is the end of the first line*/
-        if (LCD_DigitCounter == NUM_OF_DIGITS)
+        if (User_CurrentRequest && User_Resquest[User_CurrentRequest - 1].CallBack)
         {
-            /*go to the beginning of the second line*/
-            LCD_SetCursorPositionAsync(1, 0, NULL);
-        }
-        /*check if the current position is the end of the second line*/
-        else if (LCD_DigitCounter == NUM_OF_DIGITS * 2)
-        {
-            /*go to the beginning of the first line*/
-            LCD_SetCursorPositionAsync(0, 0, NULL);
-        }
-        else
-        {
-            /*do nothing*/
-        }
-
-        if (Write_Request.CallBack)
-        {
-            Write_Request.CallBack();
+            // GPIO_Set_PinValue(GPIO_PORT_A,GPIO_PIN_11,GPIO_STATE_SET);
+            User_Resquest[User_CurrentRequest - 1].CallBack();
         }
     }
 }
+#endif
 
+#if NUMBER_OF_DATA_LINES == DATA_8_PINS
 static void OperationState_ClearFunc()
 {
     static u8_t Clear_state = STATIC_STATE_READY;
     u8_t LOC_DisplayClearCommand = LCD_8_PIN_COMMAND_CLEAR;
-#if NUMBER_OF_DATA_LINES == DATA_4_PINS
-    static u8_t CommandState = 0;
-#endif
-#if NUMBER_OF_DATA_LINES == DATA_8_PINS
 
     switch (Clear_state)
     {
@@ -590,18 +611,23 @@ static void OperationState_ClearFunc()
 
         LCD_SetCursorPositionAsync(0, 0, NULL);
 
-        if (Clear_Request.CallBack)
+        if (User_CurrentRequest && User_Resquest[User_CurrentRequest - 1].CallBack)
         {
-            Clear_Request.CallBack();
+            User_Resquest[User_CurrentRequest - 1].CallBack();
         }
         break;
 
     default:
         break;
     }
+}
 #endif
 #if NUMBER_OF_DATA_LINES == DATA_4_PINS
-
+static void OperationState_ClearFunc()
+{
+    static u8_t Clear_state = STATIC_STATE_READY;
+    u8_t LOC_DisplayClearCommand = LCD_8_PIN_COMMAND_CLEAR;
+    static u8_t CommandState = 0;
     switch (Clear_state)
     {
     case STATIC_STATE_READY:
@@ -632,9 +658,9 @@ static void OperationState_ClearFunc()
 
             LCD_SetCursorPositionAsync(0, 0, NULL);
 
-            if (Clear_Request.CallBack)
+            if (User_CurrentRequest && User_Resquest[User_CurrentRequest - 1].CallBack)
             {
-                Clear_Request.CallBack();
+                User_Resquest[User_CurrentRequest - 1].CallBack();
             }
         }
         else
@@ -646,26 +672,23 @@ static void OperationState_ClearFunc()
     default:
         break;
     }
-#endif
 }
+#endif
 
+#if NUMBER_OF_DATA_LINES == DATA_8_PINS
 static void OperationState_SetPFunc()
 {
     static u8_t SetPState = STATIC_STATE_READY;
     u8_t LOC_Location = LCD_COMMAND_GOTOXY;
-#if NUMBER_OF_DATA_LINES == DATA_4_PINS
-    static u8_t CommandState = 0;
-#endif
-#if NUMBER_OF_DATA_LINES == DATA_8_PINS
 
     /*check if the location is in the first line*/
-    if (SetP_Request.X_Position == 0)
+    if (User_Resquest[User_CurrentRequest].X_Position == 0)
     {
-        LOC_Location += SetP_Request.Y_Position;
+        LOC_Location += User_Resquest[User_CurrentRequest].Y_Position;
     }
     else
     {
-        LOC_Location += (SetP_Request.Y_Position + LCD_SECOND_LINE_OFFSET);
+        LOC_Location += (User_Resquest[User_CurrentRequest].Y_Position + LCD_SECOND_LINE_OFFSET);
     }
 
     switch (SetPState)
@@ -676,8 +699,8 @@ static void OperationState_SetPFunc()
         break;
     case STATIC_STATE_BUSY:
         LCD_WriteToPins(LOC_Location, WRITE_COMMAND_STATE);
-        SetP_Request.X_Position = 0;
-        SetP_Request.Y_Position = 0;
+        User_Resquest[User_CurrentRequest].X_Position = 0;
+        User_Resquest[User_CurrentRequest].Y_Position = 0;
         SetPState = STATIC_STATE_READY;
         User_Resquest[User_CurrentRequest].U_State = LCD_USER_STATE_READY;
 
@@ -687,27 +710,34 @@ static void OperationState_SetPFunc()
             User_CurrentRequest = 0;
         }
 
-        if (SetP_Request.CallBack)
+        if (User_CurrentRequest && User_Resquest[User_CurrentRequest - 1].CallBack)
         {
-            SetP_Request.CallBack();
+            User_Resquest[User_CurrentRequest - 1].CallBack();
         }
         break;
 
     default:
         break;
+        //  LCD_DigitCounter = (User_Resquest[User_CurrentRequest].X_Position * 16) + User_Resquest[User_CurrentRequest].Y_Position;
     }
+}
 #endif
 
 #if NUMBER_OF_DATA_LINES == DATA_4_PINS
+static void OperationState_SetPFunc()
+{
+    static u8_t SetPState = STATIC_STATE_READY;
+    u8_t LOC_Location = LCD_COMMAND_GOTOXY;
+    static u8_t CommandState = 0;
 
     /*check if the location is in the first line*/
-    if (SetP_Request.X_Position == 0)
+    if (User_Resquest[User_CurrentRequest].X_Position == 0)
     {
-        LOC_Location += SetP_Request.Y_Position;
+        LOC_Location += User_Resquest[User_CurrentRequest].Y_Position;
     }
     else
     {
-        LOC_Location += (SetP_Request.Y_Position + LCD_SECOND_LINE_OFFSET);
+        LOC_Location += (User_Resquest[User_CurrentRequest].Y_Position + LCD_SECOND_LINE_OFFSET);
     }
 
     switch (SetPState)
@@ -728,8 +758,8 @@ static void OperationState_SetPFunc()
         if (CommandState)
         {
             LCD_WriteToPins(LOC_Location, WRITE_COMMAND_STATE);
-            SetP_Request.X_Position = 0;
-            SetP_Request.Y_Position = 0;
+            User_Resquest[User_CurrentRequest].X_Position = 0;
+            User_Resquest[User_CurrentRequest].Y_Position = 0;
             SetPState = STATIC_STATE_READY;
             User_Resquest[User_CurrentRequest].U_State = LCD_USER_STATE_READY;
 
@@ -740,9 +770,9 @@ static void OperationState_SetPFunc()
             }
             CommandState = 0;
 
-            if (SetP_Request.CallBack)
+            if (User_CurrentRequest && User_Resquest[User_CurrentRequest - 1].CallBack)
             {
-                SetP_Request.CallBack();
+                User_Resquest[User_CurrentRequest - 1].CallBack();
             }
         }
         else
@@ -755,9 +785,9 @@ static void OperationState_SetPFunc()
         break;
     }
 
-#endif
-    LCD_DigitCounter = (SetP_Request.X_Position * 16) + SetP_Request.Y_Position;
+    // LCD_DigitCounter = (SetP_Request.X_Position * 16) + SetP_Request.Y_Position;
 }
+#endif
 
 Error_Status LCD_GetStatus(u8_t *Status)
 {
