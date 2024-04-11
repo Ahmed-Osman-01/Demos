@@ -143,7 +143,7 @@ KEYPAD_enumError_t KEYPAD_getPressedKey(char* Add_KEYPAD_enumSwitch)
     /* Return an error status from the function */
     return loc_KEYPADError;
 }
-
+/*Every 6 ms*/
 void Keypad_Runnable(void)
 {
     u8 loc_iteratorRows = 0;
