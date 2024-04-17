@@ -71,6 +71,8 @@ extern volatile uint16_t stopWatchTime[7];
 extern volatile int8_t cursor_pos[2];
 extern volatile int16_t EditedTime[7];
 extern volatile uint8_t EditDigit_Flag;
+extern volatile uint8_t trackCursorFlag;
+extern volatile uint8_t EditTimeFlag;
 volatile uint8_t temp1[13];
 volatile uint8_t temp2[11]; 
 volatile uint8_t temp3[13];
@@ -217,6 +219,11 @@ void displayControl (void)
             {
                 case Edit_Mode:
                     trackCursor();
+                    if(trackCursorFlag)
+                    {
+                        LCD_SetCursorPosAsync(cursor_pos[y_pos],cursor_pos[x_pos]);
+                        trackCursorFlag = 0;
+                    }    
                     validateCursorPos(cursor_pos[x_pos],cursor_pos[y_pos]);
                     if((Switches_Status & EDIT_MASK) && validCursorPos && !NOT_EDIT_DIGIT)
                     {
@@ -226,6 +233,13 @@ void displayControl (void)
                     break;
                 case Edit_Digit:
                     EditTime();
+                    if(EditTimeFlag)
+                    {
+                        LCD_SetCursorPosAsync(1,2);
+                        LCD_WriteBufferAsync((const uint8_t*)(temp4), 11);
+                        LCD_SetCursorPosAsync(cursor_pos[y_pos],cursor_pos[x_pos]);
+                        EditTimeFlag = 0;
+                    }
                     if(Switches_Status & OK_MASK)
                     {  
                         Edit_state = Edit_Mode;

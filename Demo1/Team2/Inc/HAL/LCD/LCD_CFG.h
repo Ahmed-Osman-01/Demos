@@ -16,7 +16,7 @@
  *      - LCD_4_BIT_MODE 
  * 
  */
-#define LCD_MODE    LCD_4_BIT_MODE
+#define LCD_MODE    LCD_8_BIT_MODE
 
 
 /* Max size of LCD requests to be buffered and executed at once */
@@ -30,30 +30,30 @@
  */
 #if LCD_MODE == LCD_8_BIT_MODE
 
-#define LCD_PIN_D0      GPIO_PIN_0
+#define LCD_PIN_D0      GPIO_PIN_3
 #define LCD_PORT_D0     GPIO_PORT_A
 
-#define LCD_PIN_D1      GPIO_PIN_1
+#define LCD_PIN_D1      GPIO_PIN_4
 #define LCD_PORT_D1     GPIO_PORT_A
 
-#define LCD_PIN_D2      GPIO_PIN_2
+#define LCD_PIN_D2      GPIO_PIN_5
 #define LCD_PORT_D2     GPIO_PORT_A
 
-#define LCD_PIN_D3      GPIO_PIN_3
+#define LCD_PIN_D3      GPIO_PIN_6
 #define LCD_PORT_D3     GPIO_PORT_A
 
 #endif
 
-#define LCD_PIN_D4      GPIO_PIN_3
+#define LCD_PIN_D4      GPIO_PIN_7
 #define LCD_PORT_D4     GPIO_PORT_A
 
-#define LCD_PIN_D5      GPIO_PIN_4
+#define LCD_PIN_D5      GPIO_PIN_8
 #define LCD_PORT_D5     GPIO_PORT_A
 
-#define LCD_PIN_D6      GPIO_PIN_5
+#define LCD_PIN_D6      GPIO_PIN_9
 #define LCD_PORT_D6     GPIO_PORT_A
 
-#define LCD_PIN_D7      GPIO_PIN_6
+#define LCD_PIN_D7      GPIO_PIN_10
 #define LCD_PORT_D7     GPIO_PORT_A
 
 #define LCD_PIN_RS      GPIO_PIN_0

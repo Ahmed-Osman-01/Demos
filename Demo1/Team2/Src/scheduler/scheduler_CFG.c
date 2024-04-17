@@ -30,7 +30,7 @@ const Runnable_USER_t Runnable_User [_RUNNABLE_NO] =
     [Runnable_2] = {
         .Name = "LCD_TASK",
         .Priority = 0,
-        .Periodicity = 1,
+        .Periodicity = 2,
         .CB = (Runnable)&LCD_Update,
         .First_Delay = 0
     },
@@ -52,7 +52,7 @@ const Runnable_USER_t Runnable_User [_RUNNABLE_NO] =
     [Runnable_5] = {
         .Name = "displayControl",
         .Priority = 0,
-        .Periodicity = 100,
+        .Periodicity = 200,
         .CB = (Runnable)&displayControl,
         .First_Delay = 200
     },

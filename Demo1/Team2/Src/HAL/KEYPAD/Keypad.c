@@ -71,7 +71,8 @@ KEYPAD_enumError_t KEYPAD_Init()
         loc_PORTstr.Port = KEYPAD_strConfig.KEYPAD_strROWS[loc_iterator].KEYPAD_enumPORT;			/* Assign The Keypad Rows Ports to the local Port Struct */
         loc_PORTstr.Pin = KEYPAD_strConfig.KEYPAD_strROWS[loc_iterator].KEYPAD_enumPin;			/* Assign The Keypad Cols Pins to the Local Port Struct */
         loc_PORTstr.Mode = GPIO_MODE_IN_PU;			
-        loc_PORTstr.Speed = GPIO_SPEED_HIGH;											/* Configure the Required Pin to Input Pull Up */
+        loc_PORTstr.Speed = GPIO_SPEED_HIGH;	
+        loc_PORTstr.AF = GPIO_AF_SYSTEM;									/* Configure the Required Pin to Input Pull Up */
         GPIO_Init(&loc_PORTstr);																        /* Sending the Configuration to the Port To Make the Configurations Take Action */
     }
 
@@ -81,9 +82,10 @@ KEYPAD_enumError_t KEYPAD_Init()
         loc_PORTstr.Port = KEYPAD_strConfig.KEYPAD_strCOLS[loc_iterator].KEYPAD_enumPORT;			/* Assign The Keypad Rows Ports to the local Port Struct */
         loc_PORTstr.Pin = KEYPAD_strConfig.KEYPAD_strCOLS[loc_iterator].KEYPAD_enumPin;			/* Assign The Keypad Cols Pins to the Local Port Struct */
         loc_PORTstr.Mode = GPIO_MODE_OP_PP;			
-        loc_PORTstr.Speed = GPIO_SPEED_HIGH;												/* Configure the Required Pin to Output */
+        loc_PORTstr.Speed = GPIO_SPEED_HIGH;
+        loc_PORTstr.AF = GPIO_AF_SYSTEM;													/* Configure the Required Pin to Output */
         GPIO_Init(&loc_PORTstr);					
-        GPIO_SetPinState(KEYPAD_strConfig.KEYPAD_strCOLS[loc_iterator].KEYPAD_enumPORT,KEYPAD_strConfig.KEYPAD_strCOLS[loc_iterator].KEYPAD_enumPin,GPIO_STATE_HIGH);												    /* Sending the Configuration to the Port To Make the Configurations Take Action */
+        GPIO_SetPinState(KEYPAD_strConfig.KEYPAD_strCOLS[loc_iterator].KEYPAD_enumPORT,KEYPAD_strConfig.KEYPAD_strCOLS[loc_iterator].KEYPAD_enumPin,KEYPAD_strConfig.KEYPAD_enumLogicType);												    /* Sending the Configuration to the Port To Make the Configurations Take Action */
     }
 
     return loc_KEYPADError; /* Return an Error Status from the Function */
@@ -99,19 +101,19 @@ KEYPAD_enumError_t KEYPAD_getPressedKey(char* Add_KEYPAD_enumSwitch)
     uint8_t loc_iteratorCols = 0;
     uint8_t loc_checkValue = GPIO_STATE_LOW;
     /* Determine the expected logic level based on keypad connection and logic type */
-    if (KEYPAD_strConfig.KEYPAD_enumConnection == KEYPAD_enumPullUp && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicHigh)
+    if (KEYPAD_strConfig.KEYPAD_enumConnection == GPIO_MODE_IN_PU && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicHigh)
     {
         loc_checkValue = GPIO_STATE_LOW;
     }
-    else if (KEYPAD_strConfig.KEYPAD_enumConnection == KEYPAD_enumPullUp && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicLow)
+    else if (KEYPAD_strConfig.KEYPAD_enumConnection == GPIO_MODE_IN_PU && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicLow)
     {
         loc_checkValue = GPIO_STATE_HIGH;
     }
-    else if (KEYPAD_strConfig.KEYPAD_enumConnection == KEYPAD_enumPullDown && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicHigh)
+    else if (KEYPAD_strConfig.KEYPAD_enumConnection == GPIO_MODE_IN_PD && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicHigh)
     {
         loc_checkValue = GPIO_STATE_LOW;
     }
-    else if (KEYPAD_strConfig.KEYPAD_enumConnection == KEYPAD_enumPullDown && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicLow)
+    else if (KEYPAD_strConfig.KEYPAD_enumConnection == GPIO_MODE_IN_PD && KEYPAD_strConfig.KEYPAD_enumLogicType == KEYPAD_enumLogicLow)
     {
         loc_checkValue = GPIO_STATE_HIGH;
     }
