@@ -8,7 +8,7 @@
 #ifndef HAL_LCD_LCD_H_
 #define HAL_LCD_LCD_H_
 
-
+#include <stdint.h>
 /* ============================================================================ */
 /*                                  	COMMANDS                           	    */
 /* ============================================================================ */
@@ -34,7 +34,7 @@
 typedef struct
 {
     void * Port;
-    u8 Pin;
+    uint8_t Pin;
 
 }LCD_Pin_t;
 
@@ -67,7 +67,7 @@ LCD_ErrorStatus_t LCD_Init(void);
  * @param string String to print
  * @return LCD_ErrorStatus_t 
  */
-LCD_ErrorStatus_t LCD_WriteStringAsync(const u8 * string);
+LCD_ErrorStatus_t LCD_WriteStringAsync(const uint8_t * string);
 
 
 /**
@@ -76,7 +76,7 @@ LCD_ErrorStatus_t LCD_WriteStringAsync(const u8 * string);
  * @param string data to print
  * @return LCD_ErrorStatus_t 
  */
-LCD_ErrorStatus_t LCD_WriteBufferAsync(const u8 * data, u16 size);
+LCD_ErrorStatus_t LCD_WriteBufferAsync(const uint8_t * data, uint16_t size);
 
 
 /**
@@ -91,12 +91,12 @@ LCD_ErrorStatus_t LCD_ClearScreenAsync(void);
  * @brief Sets the cursor position to the given Row and Col
  * 
  * @param row 0 for the first row or 1 for second row
- * @param col 0 to 16
+ * @param col 0 to 15
  * @return LCD_ErrorStatus_t 
  */
-LCD_ErrorStatus_t LCD_SetCursorPosAsync(u8 row, u8 col);
+LCD_ErrorStatus_t LCD_SetCursorPosAsync(uint8_t row, uint8_t col);
 
 
-LCD_ErrorStatus_t LCD_SendCommandAsync(u8 command);
+LCD_ErrorStatus_t LCD_SendCommandAsync(uint8_t command);
 
 #endif /* HAL_LCD_LCD_H_ */

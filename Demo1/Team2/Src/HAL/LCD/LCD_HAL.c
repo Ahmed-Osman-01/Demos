@@ -10,13 +10,12 @@
 /*                                  INCLUDEDS                           	    */
 /* ============================================================================ */
 
-#include "LIB/STD_TYPES.h"
 #include "MCAL/GPIO/GPIO.h"
 #include "HAL/LCD/LCD_priv.h"
-#include "HAL/LCD/LCD.h"
-#include "HAL/LCD/LCD_config.h"
+#include "HAL/LCD/LCD_HAL.h"
+#include "HAL/LCD/LCD_CFG.h"
 
-
+#include <stdint.h>
 /* ============================================================================ */
 /*                                   MACROS                             	    */
 /* ============================================================================ */
@@ -74,15 +73,15 @@ typedef void (*LCDCallBack)(void);
     can't accept new requests*/
 typedef struct
 {
-    u8 type;
-    u8 state;
+    uint8_t type;
+    uint8_t state;
     LCDCallBack cb;
-    const u8 * data;
-    u8 length;
-    u8 currIndex;
-    u8 row;
-    u8 col;
-    u8 command;
+    const uint8_t * data;
+    uint8_t length;
+    uint8_t currIndex;
+    uint8_t row;
+    uint8_t col;
+    uint8_t command;
 }LCD_Request_t;
 
 
@@ -147,9 +146,9 @@ extern const LCD_Pin_t LCD_Pins[LCD_PINS_NUM];
 static LCD_State_t G_LCDState = LCD_OFF;        /* States of LCD */
 
 static LCD_Request_t Requests[REQUEST_BUFFER_SIZE];     /* Buffer of requests */
-static u8 currReqIdx;
+static uint8_t currReqIdx;
 
-static u8 G_OperationLatchCount;       /* counter used by operation requests to check if number of latches required is reached */
+static uint8_t G_OperationLatchCount;       /* counter used by operation requests to check if number of latches required is reached */
 
 
 
@@ -163,14 +162,14 @@ static u8 G_OperationLatchCount;       /* counter used by operation requests to 
  * 
  * @param byte The byte to be written on LCD pins
  */
-static void Latch(u8 byte)
+static void Latch(uint8_t byte)
 {
     #if LCD_MODE == LCD_4_BIT_MODE
-    static u8 currNibble = HIGH_NIBBLE;
+    static uint8_t currNibble = HIGH_NIBBLE;
     #endif
 
-    static u8 EnablePinState = ENABLE_PIN_LOW;      /* State of the Enable Pin */
-    u8 iter;
+    static uint8_t EnablePinState = ENABLE_PIN_LOW;      /* State of the Enable Pin */
+    uint8_t iter;
 
     if(EnablePinState == ENABLE_PIN_LOW)
     {
@@ -204,7 +203,7 @@ static void Latch(u8 byte)
 }
 
 
-static void WriteCommand(u8 command)
+static void WriteCommand(uint8_t command)
 {
     GPIO_SetPinState(LCD_PORT_RS, LCD_PIN_RS, 0);   
     GPIO_SetPinState(LCD_PORT_RW, LCD_PIN_RW, 0);   
@@ -212,7 +211,7 @@ static void WriteCommand(u8 command)
 }
 
 
-static void WriteData(u8 data)
+static void WriteData(uint8_t data)
 {
 
     GPIO_SetPinState(LCD_PORT_RS, LCD_PIN_RS, 1);   
@@ -227,7 +226,7 @@ static void WriteData(u8 data)
 static void InitProcess(void)
 {
     static LCD_Init_States_t InitState = POWER_ON_STATE;
-    static u8 counter = 0;
+    static uint8_t counter = 0;
 
     switch(InitState)
     {
@@ -297,7 +296,7 @@ static void InitProcess(void)
 static void InitProcess(void)
 {
     static LCD_Init_States_t InitState = POWER_ON_STATE;
-    static u8 counter = 0;
+    static uint8_t counter = 0;
 
     switch(InitState)
     {
@@ -568,7 +567,7 @@ void LCD_Update(void)
 LCD_ErrorStatus_t LCD_Init(void)
 {
     LCD_ErrorStatus_t Ret_ErrorStatus = LCD_OK;
-    u8 iter;
+    uint8_t iter;
     GPIO_Pin_t lcdPin;
     lcdPin.Mode = GPIO_MODE_OP_PP;
     lcdPin.AF = GPIO_AF_SYSTEM;
@@ -603,10 +602,10 @@ LCD_ErrorStatus_t LCD_Init(void)
 }
 
 
-LCD_ErrorStatus_t LCD_WriteStringAsync(const u8 * string)
+LCD_ErrorStatus_t LCD_WriteStringAsync(const uint8_t * string)
 {
     LCD_ErrorStatus_t Ret_ErrorStatus = LCD_OK;
-    u8 iter;
+    uint8_t iter;
     if(string == NULL)
     {
         Ret_ErrorStatus = LCD_NOK;
@@ -630,11 +629,11 @@ LCD_ErrorStatus_t LCD_WriteStringAsync(const u8 * string)
 }
 
 
-LCD_ErrorStatus_t LCD_WriteBufferAsync(const u8 * data, u16 size)
+LCD_ErrorStatus_t LCD_WriteBufferAsync(const uint8_t * data, uint16_t size)
 {
     LCD_ErrorStatus_t Ret_ErrorStatus = LCD_OK;
 
-    u8 iter;
+    uint8_t iter;
 
     if(data == NULL)
     {
@@ -663,7 +662,7 @@ LCD_ErrorStatus_t LCD_WriteBufferAsync(const u8 * data, u16 size)
 
 LCD_ErrorStatus_t LCD_ClearScreenAsync(void)
 {
-    u8 iter;
+    uint8_t iter;
 
     for(iter = 0; iter < REQUEST_BUFFER_SIZE; iter++)
     {
@@ -679,9 +678,9 @@ LCD_ErrorStatus_t LCD_ClearScreenAsync(void)
 }
 
 
-LCD_ErrorStatus_t LCD_SetCursorPosAsync(u8 row, u8 col)
+LCD_ErrorStatus_t LCD_SetCursorPosAsync(uint8_t row, uint8_t col)
 {
-    u8 iter;
+    uint8_t iter;
 
     for(iter = 0; iter < REQUEST_BUFFER_SIZE; iter++)
     {
@@ -701,9 +700,9 @@ LCD_ErrorStatus_t LCD_SetCursorPosAsync(u8 row, u8 col)
 }
 
 
-LCD_ErrorStatus_t LCD_SendCommandAsync(u8 command)
+LCD_ErrorStatus_t LCD_SendCommandAsync(uint8_t command)
 {
-     u8 iter;
+     uint8_t iter;
 
     for(iter = 0; iter < REQUEST_BUFFER_SIZE; iter++)
     {

@@ -13,8 +13,8 @@
 #include "LIB/STD_TYPES.h"
 #include "MCAL/GPIO/GPIO.h"
 #include "HAL/LCD/LCD_priv.h"
-#include "HAL/LCD/LCD_config.h"
-#include "HAL/LCD/LCD.h"
+#include "HAL/LCD/LCD_CFG.h"
+#include "HAL/LCD/LCD_HAL.h"
 
 
 
