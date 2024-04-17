@@ -2,7 +2,7 @@
 #define DRIVER_INCLUDE_SYSTICK_H_
 
 #include <stdint.h>
-#include <SYSTICK_CFG.h>
+#include "SYSTICK_CFG.h"
 
 #define AHBDIV8CLK 0
 #define AHBCLK     1

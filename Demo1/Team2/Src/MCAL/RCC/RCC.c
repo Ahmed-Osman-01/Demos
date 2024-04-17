@@ -7,6 +7,7 @@
 
 #include "LIB/STD_TYPES.h"
 #include "MCAL/RCC/RCC.h"
+#include <stdint.h>
 
 #define RCC_SYSCLK_MASK          0x00000003
 #define RCC_SYSCLK_STATE_MASK    0x0000000C
@@ -26,35 +27,35 @@
 
 typedef struct
 {
-    u32 CR;
-    u32 PLLCFGR;
-    u32 CFGR;
-    u32 CIR;
-    u32 AHB1RSTR;
-    u32 AHB2RSTR;
-    u32 reserved1[2];
-    u32 APB1RSTR;
-    u32 APB2RSTR;
-    u32 reserved2[2];
-    u32 AHB1ENR;
-    u32 AHB2ENR;
-    u32 reserved3[2];
-    u32 APB1ENR;
-    u32 APB2ENR;
-    u32 reserved4[2];
-    u32 AHB1LPENR;
-    u32 AHB2LPENR;
-    u32 reserved5[2];
-    u32 APB1LPENR;
-    u32 APB2LPENR;
-    u32 reserved6[2];
-    u32 BDCR;
-    u32 CSR;
-    u32 reserved7[2];
-    u32 SSCGR;
-    u32 RCC_PLLI2SCFGR;
-    u32 reserved8;
-    u32 DCKCFGR;
+    uint32_t CR;
+    uint32_t PLLCFGR;
+    uint32_t CFGR;
+    uint32_t CIR;
+    uint32_t AHB1RSTR;
+    uint32_t AHB2RSTR;
+    uint32_t reserved1[2];
+    uint32_t APB1RSTR;
+    uint32_t APB2RSTR;
+    uint32_t reserved2[2];
+    uint32_t AHB1ENR;
+    uint32_t AHB2ENR;
+    uint32_t reserved3[2];
+    uint32_t APB1ENR;
+    uint32_t APB2ENR;
+    uint32_t reserved4[2];
+    uint32_t AHB1LPENR;
+    uint32_t AHB2LPENR;
+    uint32_t reserved5[2];
+    uint32_t APB1LPENR;
+    uint32_t APB2LPENR;
+    uint32_t reserved6[2];
+    uint32_t BDCR;
+    uint32_t CSR;
+    uint32_t reserved7[2];
+    uint32_t SSCGR;
+    uint32_t RCC_PLLI2SCFGR;
+    uint32_t reserved8;
+    uint32_t DCKCFGR;
 
 }RCC_Registers_t;
 
@@ -274,10 +275,10 @@ typedef enum
 
 }RCC_CSR_Bits_t;
 
-RCC_ErrorStatus_t RCC_EnableClk(u8 Copy_Clk)
+RCC_ErrorStatus_t RCC_EnableClk(uint8_t Copy_Clk)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
-    u16 Local_Timeout = RCC_TIMEOUT_PERIOD;
+    uint16_t Local_Timeout = RCC_TIMEOUT_PERIOD;
     switch(Copy_Clk)
     {
         case RCC_CLK_HSI:
@@ -326,7 +327,7 @@ RCC_ErrorStatus_t RCC_EnableClk(u8 Copy_Clk)
 
 
 
-RCC_ErrorStatus_t RCC_DisableClk(u8 Copy_Clk)
+RCC_ErrorStatus_t RCC_DisableClk(uint8_t Copy_Clk)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
 
@@ -373,10 +374,10 @@ RCC_ErrorStatus_t RCC_DisableClk(u8 Copy_Clk)
 
 
 
-RCC_ErrorStatus_t RCC_SetSystemClk(u8 Copy_SystemClk)
+RCC_ErrorStatus_t RCC_SetSystemClk(uint8_t Copy_SystemClk)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
-    u32 Local_TmpReg;
+    uint32_t Local_TmpReg;
 
     if(
         ( (Copy_SystemClk == RCC_SYSCLK_HSI) && !( (RCC->CR >> RCC_HSION) & 1 ) )
@@ -403,7 +404,7 @@ RCC_ErrorStatus_t RCC_SetSystemClk(u8 Copy_SystemClk)
 
 
 
-RCC_ErrorStatus_t RCC_SetPllSource(u8 Copy_SystemClk)
+RCC_ErrorStatus_t RCC_SetPllSource(uint8_t Copy_SystemClk)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
 
@@ -440,10 +441,10 @@ RCC_ErrorStatus_t RCC_SetPllSource(u8 Copy_SystemClk)
 
 
 
-RCC_ErrorStatus_t RCC_SetPllClk(u8 Copy_M, u16 Copy_N, u8 Copy_P, u8 Copy_Q)
+RCC_ErrorStatus_t RCC_SetPllClk(uint8_t Copy_M, uint16_t Copy_N, uint8_t Copy_P, uint8_t Copy_Q)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
-    u32 Local_TmpReg;
+    uint32_t Local_TmpReg;
 
     if(
         (Copy_M < 2 || Copy_M > 63)
@@ -474,7 +475,7 @@ RCC_ErrorStatus_t RCC_SetPllClk(u8 Copy_M, u16 Copy_N, u8 Copy_P, u8 Copy_Q)
 
 RCC_ErrorStatus_t RCC_EnablePeripheral(RCC_Peripheral_t Copy_Peripheral)
 {
-    u32 Local_PeripheralCode = ((u32*)&Copy_Peripheral)[1];         /* Code part of the peripheral enum */      
+    uint32_t Local_PeripheralCode = ((uint32_t*)&Copy_Peripheral)[1];         /* Code part of the peripheral enum */      
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
 
     /* Check for the Peripherals enums Specific code to make sure
@@ -485,21 +486,21 @@ RCC_ErrorStatus_t RCC_EnablePeripheral(RCC_Peripheral_t Copy_Peripheral)
     }
     else
     {
-        if((u32)Copy_Peripheral < 32)        /* AHB1 REG peripherals */
+        if((uint32_t)Copy_Peripheral < 32)        /* AHB1 REG peripherals */
         {
-            RCC->AHB1ENR |= (1<<(u32)Copy_Peripheral);
+            RCC->AHB1ENR |= (1<<(uint32_t)Copy_Peripheral);
         }
-        else if((u32)Copy_Peripheral < 64)   /* AHB2 REG peripherals */
+        else if((uint32_t)Copy_Peripheral < 64)   /* AHB2 REG peripherals */
         {
-            RCC->AHB2ENR |= (1<< ((u32)Copy_Peripheral - 32) );
+            RCC->AHB2ENR |= (1<< ((uint32_t)Copy_Peripheral - 32) );
         }
-        else if((u32)Copy_Peripheral < 96)   /* APB1 REG peripherals */
+        else if((uint32_t)Copy_Peripheral < 96)   /* APB1 REG peripherals */
         {
-            RCC->APB1ENR |= (1<< ((u32)Copy_Peripheral - 64) );
+            RCC->APB1ENR |= (1<< ((uint32_t)Copy_Peripheral - 64) );
         }
-        else if((u32)Copy_Peripheral < 128)  /* APB2 REG peripherals */
+        else if((uint32_t)Copy_Peripheral < 128)  /* APB2 REG peripherals */
         {
-            RCC->APB2ENR |= (1<< ((u32)Copy_Peripheral - 96) );
+            RCC->APB2ENR |= (1<< ((uint32_t)Copy_Peripheral - 96) );
         }
         else
         {
@@ -513,7 +514,7 @@ RCC_ErrorStatus_t RCC_EnablePeripheral(RCC_Peripheral_t Copy_Peripheral)
 
 RCC_ErrorStatus_t RCC_DisablePeripheral(RCC_Peripheral_t Copy_Peripheral)
 {
-    u32 Local_PeripheralCode = ((u32*)&Copy_Peripheral)[1];         /* Code part of the peripheral enum */
+    uint32_t Local_PeripheralCode = ((uint32_t*)&Copy_Peripheral)[1];         /* Code part of the peripheral enum */
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
 
     if(Local_PeripheralCode != 3)
@@ -522,21 +523,21 @@ RCC_ErrorStatus_t RCC_DisablePeripheral(RCC_Peripheral_t Copy_Peripheral)
     }
     else
     {
-        if((u32)Copy_Peripheral < 32)        /* AHB1 REG peripherals */
+        if((uint32_t)Copy_Peripheral < 32)        /* AHB1 REG peripherals */
         {
-            RCC->AHB1ENR &= ~(1<<(u32)Copy_Peripheral);
+            RCC->AHB1ENR &= ~(1<<(uint32_t)Copy_Peripheral);
         }
-        else if((u32)Copy_Peripheral < 64)   /* AHB2 REG peripherals */
+        else if((uint32_t)Copy_Peripheral < 64)   /* AHB2 REG peripherals */
         {
-            RCC->AHB2ENR &= ~(1<< ((u32)Copy_Peripheral - 32) );
+            RCC->AHB2ENR &= ~(1<< ((uint32_t)Copy_Peripheral - 32) );
         }
-        else if((u32)Copy_Peripheral < 96)   /* APB1 REG peripherals */
+        else if((uint32_t)Copy_Peripheral < 96)   /* APB1 REG peripherals */
         {
-            RCC->APB1ENR &= ~(1<< ((u32)Copy_Peripheral - 64) );
+            RCC->APB1ENR &= ~(1<< ((uint32_t)Copy_Peripheral - 64) );
         }
-        else if((u32)Copy_Peripheral < 128)  /* APB2 REG peripherals */
+        else if((uint32_t)Copy_Peripheral < 128)  /* APB2 REG peripherals */
         {
-            RCC->APB2ENR &= ~(1<< ((u32)Copy_Peripheral - 96) );
+            RCC->APB2ENR &= ~(1<< ((uint32_t)Copy_Peripheral - 96) );
         }
         else
         {
@@ -548,10 +549,10 @@ RCC_ErrorStatus_t RCC_DisablePeripheral(RCC_Peripheral_t Copy_Peripheral)
 }
 
 
-RCC_ErrorStatus_t RCC_SetAHBPrescale(u8 Copy_AHB_Prescale)
+RCC_ErrorStatus_t RCC_SetAHBPrescale(uint8_t Copy_AHB_Prescale)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
-    u32 Local_TmpReg;
+    uint32_t Local_TmpReg;
 
     if( (Copy_AHB_Prescale < RCC_AHB_PRESCALE_1) || (Copy_AHB_Prescale > RCC_AHB_PRESCALE_512) )
     {
@@ -569,10 +570,10 @@ RCC_ErrorStatus_t RCC_SetAHBPrescale(u8 Copy_AHB_Prescale)
 }
 
 
-RCC_ErrorStatus_t RCC_SetAPB1Prescale(u8 Copy_APB_Prescale)
+RCC_ErrorStatus_t RCC_SetAPB1Prescale(uint8_t Copy_APB_Prescale)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
-    u32 Local_TmpReg;
+    uint32_t Local_TmpReg;
 
     if( (Copy_APB_Prescale < RCC_APB_PRESCALE_1) || (Copy_APB_Prescale > RCC_APB_PRESCALE_16) )
     {
@@ -590,10 +591,10 @@ RCC_ErrorStatus_t RCC_SetAPB1Prescale(u8 Copy_APB_Prescale)
 }
 
 
-RCC_ErrorStatus_t RCC_SetAPB2Prescale(u8 Copy_APB_Prescale)
+RCC_ErrorStatus_t RCC_SetAPB2Prescale(uint8_t Copy_APB_Prescale)
 {
     RCC_ErrorStatus_t Ret_ErrorStatus = RCC_OK;
-    u32 Local_TmpReg;
+    uint32_t Local_TmpReg;
 
     if( (Copy_APB_Prescale < RCC_APB_PRESCALE_1) || (Copy_APB_Prescale > RCC_APB_PRESCALE_16) )
     {

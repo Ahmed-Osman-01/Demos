@@ -12,7 +12,7 @@
 
 #include "LIB/STD_TYPES.h"
 #include "MCAL/UART/UART.h"
-
+#include <stdint.h>
 
 /* ============================================================================ */
 /*                                   MACROS                             	    */
@@ -40,20 +40,20 @@
 /*                  MASKS                */
 /* ------------------------------------- */
 
-#define UART_RE_MASK        ((u32)(1 << 2))
-#define UART_TE_MASK        ((u32)(1 << 3))
-#define UART_MODE_MASK      ((u32)(3 << 2))
-#define UART_RXNEIE_MASK    ((u32)(1 << 5))
-#define UART_TXEIE_MASK     ((u32)(1 << 7))
-#define UART_PARITY_MASK    ((u32)(3 << 9))
-#define UART_LENGTH_MASK    ((u32)(1 << 12))
-#define UART_UE_MASK        ((u32)(1 << 13))
-#define UART_SAMPLING_MASK  ((u32)(1 << 15))
+#define UART_RE_MASK        ((uint32_t)(1 << 2))
+#define UART_TE_MASK        ((uint32_t)(1 << 3))
+#define UART_MODE_MASK      ((uint32_t)(3 << 2))
+#define UART_RXNEIE_MASK    ((uint32_t)(1 << 5))
+#define UART_TXEIE_MASK     ((uint32_t)(1 << 7))
+#define UART_PARITY_MASK    ((uint32_t)(3 << 9))
+#define UART_LENGTH_MASK    ((uint32_t)(1 << 12))
+#define UART_UE_MASK        ((uint32_t)(1 << 13))
+#define UART_SAMPLING_MASK  ((uint32_t)(1 << 15))
 
-#define UART_TXE_MASK   ((u32)(1 << 7))
-#define UART_RXNE_MASK  ((u32)(1 << 5))
+#define UART_TXE_MASK   ((uint32_t)(1 << 7))
+#define UART_RXNE_MASK  ((uint32_t)(1 << 5))
 
-#define UART_LBD_MASK   ((u32)(1 << 8))
+#define UART_LBD_MASK   ((uint32_t)(1 << 8))
 /* ------------------------------------- */
 /*                  VALIDATIONS          */
 /* ------------------------------------- */
@@ -86,22 +86,22 @@
 
 typedef struct
 {
-    u32 SR;
-    u32 DR;
-    u32 BRR;
-    u32 CR1;
-    u32 CR2;
-    u32 CR3;
-    u32 GTPR;
+    uint32_t SR;
+    uint32_t DR;
+    uint32_t BRR;
+    uint32_t CR1;
+    uint32_t CR2;
+    uint32_t CR3;
+    uint32_t GTPR;
 
 }UART_Registers_t;
 
 
 typedef struct
 {
-    u8 * Data;
-    u16 Length;
-    u16 CurrIdx;
+    uint8_t * Data;
+    uint16_t Length;
+    uint16_t CurrIdx;
 
 }UART_Buffer_t;
 
@@ -109,7 +109,7 @@ typedef struct
 typedef struct
 {
     UART_Buffer_t Buffer;
-    u8 State;
+    uint8_t State;
     UART_ReqCallback_t Cb;
 
 }UART_Req_t;
@@ -136,13 +136,13 @@ static UART_LBDCallback_t LBDCallbacks[_UARTS_NUM] = {NULL, NULL, NULL};
 /* ============================================================================ */
 
 
-UART_ErrorStatus_t  UART_SetConfig(u8 UARTx, UART_Config_t* config)
+UART_ErrorStatus_t  UART_SetConfig(uint8_t UARTx, UART_Config_t* config)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
-    u32 tmpReg;
-    u32 uartdiv;
-    u8 mantissa;
-    u32 fraction;
+    uint32_t tmpReg;
+    uint32_t uartdiv;
+    uint8_t mantissa;
+    uint32_t fraction;
 
     if(!IS_VALID_UART(UARTx))
     {
@@ -220,10 +220,10 @@ UART_ErrorStatus_t  UART_SetConfig(u8 UARTx, UART_Config_t* config)
 }
 
 
-UART_ErrorStatus_t UART_TXByte(u8 UARTx, u8 byte)
+UART_ErrorStatus_t UART_TXByte(uint8_t UARTx, uint8_t byte)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
-    u16 timeout = TXE_TIMEOUT_VAL;
+    uint16_t timeout = TXE_TIMEOUT_VAL;
 
     if(!IS_VALID_UART(UARTx))
     {
@@ -256,7 +256,7 @@ UART_ErrorStatus_t UART_TXByte(u8 UARTx, u8 byte)
 }
 
 
-UART_ErrorStatus_t UART_TXBufferAsyncZC(u8 UARTx, u8 * buffer, u16 length, UART_ReqCallback_t cb )
+UART_ErrorStatus_t UART_TXBufferAsyncZC(uint8_t UARTx, uint8_t * buffer, uint16_t length, UART_ReqCallback_t cb )
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -297,10 +297,10 @@ UART_ErrorStatus_t UART_TXBufferAsyncZC(u8 UARTx, u8 * buffer, u16 length, UART_
 }
 
 
-UART_ErrorStatus_t UART_RXByte(u8 UARTx, u8 *byte)
+UART_ErrorStatus_t UART_RXByte(uint8_t UARTx, uint8_t *byte)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
-    u16 timeout = RXE_TIMEOUT_VAL;
+    uint16_t timeout = RXE_TIMEOUT_VAL;
 
     if(!IS_VALID_UART(UARTx))
     {
@@ -342,7 +342,7 @@ UART_ErrorStatus_t UART_RXByte(u8 UARTx, u8 *byte)
 }
 
 
-UART_ErrorStatus_t UART_RXBufferAsyncZC(u8 UARTx, u8 * buffer, u16 length, UART_ReqCallback_t cb )
+UART_ErrorStatus_t UART_RXBufferAsyncZC(uint8_t UARTx, uint8_t * buffer, uint16_t length, UART_ReqCallback_t cb )
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -392,7 +392,7 @@ UART_ErrorStatus_t UART_RXBufferAsyncZC(u8 UARTx, u8 * buffer, u16 length, UART_
 /*                      LIN FUNCTIONALITIES                            */
 /* =================================================================== */
 
-UART_ErrorStatus_t UART_SetLINState(u8 UARTx, u32 LINState)
+UART_ErrorStatus_t UART_SetLINState(uint8_t UARTx, uint32_t LINState)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -416,7 +416,7 @@ UART_ErrorStatus_t UART_SetLINState(u8 UARTx, u32 LINState)
 
 
 
-UART_ErrorStatus_t UART_SetLINBreakDetectionLength(u8 UARTx, u32 LINBreakDetectLength)
+UART_ErrorStatus_t UART_SetLINBreakDetectionLength(uint8_t UARTx, uint32_t LINBreakDetectLength)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -438,7 +438,7 @@ UART_ErrorStatus_t UART_SetLINBreakDetectionLength(u8 UARTx, u32 LINBreakDetectL
     return Ret_ErrorStatus;
 }
 
-UART_ErrorStatus_t UART_SetLINBreakInterruptState(u8 UARTx, u32 LINBreakInterruptState)
+UART_ErrorStatus_t UART_SetLINBreakInterruptState(uint8_t UARTx, uint32_t LINBreakInterruptState)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -461,7 +461,7 @@ UART_ErrorStatus_t UART_SetLINBreakInterruptState(u8 UARTx, u32 LINBreakInterrup
 }
 
 
-UART_ErrorStatus_t UART_TXLINBreak(u8 UARTx)
+UART_ErrorStatus_t UART_TXLINBreak(uint8_t UARTx)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -493,7 +493,7 @@ UART_ErrorStatus_t UART_TXLINBreak(u8 UARTx)
     return Ret_ErrorStatus;
 }
 
-UART_ErrorStatus_t UART_SetLBDCallback(u8 UARTx, UART_LBDCallback_t cb)
+UART_ErrorStatus_t UART_SetLBDCallback(uint8_t UARTx, UART_LBDCallback_t cb)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 

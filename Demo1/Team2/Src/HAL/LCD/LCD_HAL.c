@@ -54,8 +54,9 @@
 #define LATCH_TARGET_COUNT    4U        /* Number of times latch needs to be called */
 #endif
 
-
-
+#ifndef NULL
+#define NULL ((void* )0)
+#endif
 
 
 /* ============================================================================ */
@@ -714,4 +715,5 @@ LCD_ErrorStatus_t LCD_SendCommandAsync(uint8_t command)
             break;
         }
     }
+    return 0;
 }

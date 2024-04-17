@@ -20,7 +20,7 @@
 
 
 /* Max size of LCD requests to be buffered and executed at once */
-#define REQUEST_BUFFER_SIZE     5
+#define REQUEST_BUFFER_SIZE     150
 
 
 
@@ -44,17 +44,17 @@
 
 #endif
 
-#define LCD_PIN_D4      GPIO_PIN_8
-#define LCD_PORT_D4     GPIO_PORT_B
+#define LCD_PIN_D4      GPIO_PIN_3
+#define LCD_PORT_D4     GPIO_PORT_A
 
-#define LCD_PIN_D5      GPIO_PIN_9
-#define LCD_PORT_D5     GPIO_PORT_B
+#define LCD_PIN_D5      GPIO_PIN_4
+#define LCD_PORT_D5     GPIO_PORT_A
 
-#define LCD_PIN_D6      GPIO_PIN_10
-#define LCD_PORT_D6     GPIO_PORT_B
+#define LCD_PIN_D6      GPIO_PIN_5
+#define LCD_PORT_D6     GPIO_PORT_A
 
-#define LCD_PIN_D7      GPIO_PIN_12
-#define LCD_PORT_D7     GPIO_PORT_B
+#define LCD_PIN_D7      GPIO_PIN_6
+#define LCD_PORT_D7     GPIO_PORT_A
 
 #define LCD_PIN_RS      GPIO_PIN_0
 #define LCD_PORT_RS     GPIO_PORT_A

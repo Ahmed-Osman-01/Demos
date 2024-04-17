@@ -15,7 +15,7 @@
 /********************************************************************************************************/
 #include <stdint.h>
 #include <stdlib.h>
-#include "LCD_HAL.h"
+#include "HAL/LCD/LCD_HAL.h"
 
 #ifndef NULL
 #define NULL ((void*)0)

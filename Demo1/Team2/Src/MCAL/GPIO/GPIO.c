@@ -80,17 +80,17 @@
 /* ============================================================================ */
 typedef struct
 {
-    u32 MODER;
-    u32 OTYPER;
-    u32 OSPEEDR;
-    u32 PUPDR;
-    u32 IDR;
-    u32 ODR;
-    u32 BSRR;
-    u32 LCKR;
+    uint32_t MODER;
+    uint32_t OTYPER;
+    uint32_t OSPEEDR;
+    uint32_t PUPDR;
+    uint32_t IDR;
+    uint32_t ODR;
+    uint32_t BSRR;
+    uint32_t LCKR;
     u64 AFR;
-//    u32 AFRL;
-//    u32 AFRH;
+//    uint32_t AFRL;
+//    uint32_t AFRH;
 
 }GPIO_Registers_t;
 
@@ -104,7 +104,7 @@ typedef struct
 GPIO_ErrorStatus_t GPIO_Init(GPIO_Pin_t* ADD_Config)
 {
     GPIO_ErrorStatus_t Ret_ErrorStatus = GPIO_OK;
-    u32 Local_TmpReg;
+    uint32_t Local_TmpReg;
     u64 Local_AFTmpReg; /* AFH and AFL are treated as one 64bit Register */
 
     if(ADD_Config == NULL)
@@ -190,7 +190,7 @@ GPIO_ErrorStatus_t GPIO_Init(GPIO_Pin_t* ADD_Config)
 }
 
 
-GPIO_ErrorStatus_t GPIO_SetPinState(void * Copy_Port, u32 Copy_Pin, u8 Copy_State)
+GPIO_ErrorStatus_t GPIO_SetPinState(void * Copy_Port, uint32_t Copy_Pin, uint8_t Copy_State)
 {
     GPIO_ErrorStatus_t Ret_ErrorStatus = GPIO_OK;
     
@@ -233,7 +233,7 @@ GPIO_ErrorStatus_t GPIO_SetPinState(void * Copy_Port, u32 Copy_Pin, u8 Copy_Stat
 }
 
 
-GPIO_ErrorStatus_t GPIO_GetPinState(void * Copy_Port, u32 Copy_Pin, u8 *Add_PinState)
+GPIO_ErrorStatus_t GPIO_GetPinState(void * Copy_Port, uint32_t Copy_Pin, uint8_t *Add_PinState)
 {
     GPIO_ErrorStatus_t Ret_ErrorStatus = GPIO_OK;
 

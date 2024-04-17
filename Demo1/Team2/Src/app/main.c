@@ -1,10 +1,8 @@
-#include "GPIO.h"
-#include "RCC.h"
-#include "NVIC.h"
-#include "SYSTICK.h"
-#include "LCD_HAL.h"
-#include "Keypad.h"
-#include "scheduler.h"
+
+#include "MCAL/RCC/RCC.h"
+#include "HAL/LCD/LCD_HAL.h"
+#include "HAL/KEYPAD/Keypad.h"
+#include "scheduler/scheduler.h"
 
 #define TEST_LCD 		0
 #define TEST_USART		0
@@ -66,10 +64,10 @@ void toggle_Led (void)
 
 int main(int argc, char* argv[])
 {
-	RCC_enableAHBPeriCLK(RCC_AHB1_GPIOA);
-	RCC_enableAHBPeriCLK(RCC_AHB1_GPIOB);
+	RCC_EnablePeripheral(RCC_GPIOA);
+	RCC_EnablePeripheral(RCC_GPIOB);
 	KEYPAD_Init();
-	LCD_GPIO_init();
+	LCD_Init();
 	SCH_init();
 	SCH_Start();
 }

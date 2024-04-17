@@ -8,6 +8,8 @@
 #ifndef MCAL_GPIO_GPIO_H_
 #define MCAL_GPIO_GPIO_H_
 
+#include <stdint.h>
+
 /*******Macros for the GPIO pins*******/
 #define GPIO_PIN_0  0x00000000
 #define GPIO_PIN_1  0x00000001
@@ -86,10 +88,10 @@
 typedef struct
 {
     void* Port;
-    u32 Pin;
-    u32 Mode;
-    u32 Speed;
-    u32 AF;
+    uint32_t Pin;
+    uint32_t Mode;
+    uint32_t Speed;
+    uint32_t AF;
 }GPIO_Pin_t;
 
 typedef enum
@@ -124,7 +126,7 @@ GPIO_ErrorStatus_t GPIO_Init(GPIO_Pin_t* ADD_Config);
  * @param Copy_State State to set the Pin to (High, Low)
  * @return GPIO_ErrorStatus_t Error status 
  */
-GPIO_ErrorStatus_t GPIO_SetPinState(void * Copy_Port, u32 Copy_Pin, u8 Copy_State);
+GPIO_ErrorStatus_t GPIO_SetPinState(void * Copy_Port, uint32_t Copy_Pin, uint8_t Copy_State);
 
 
 /**
@@ -135,7 +137,7 @@ GPIO_ErrorStatus_t GPIO_SetPinState(void * Copy_Port, u32 Copy_Pin, u8 Copy_Stat
  * @param Add_PinState The returned state
  * @return GPIO_ErrorStatus_t Error status
  */
-GPIO_ErrorStatus_t GPIO_GetPinState(void * Copy_Port, u32 Copy_Pin, u8 *Add_PinState);
+GPIO_ErrorStatus_t GPIO_GetPinState(void * Copy_Port, uint32_t Copy_Pin, uint8_t *Add_PinState);
 
 
 #endif /* MCAL_GPIO_GPIO_H_ */

@@ -8,6 +8,7 @@
 #ifndef RCC_RCC_H_
 #define RCC_RCC_H_
 
+#include <stdint.h>
 
 #define RCC_SYSCLK_HSI      0x00000000
 #define RCC_SYSCLK_HSE      0x00000001
@@ -53,47 +54,47 @@ typedef enum
 
 /* AHB1 Peripherals */
 typedef enum {
-    RCC_GPIOA  = (u64)0 + 0x300000000ULL,
-    RCC_GPIOB  = (u64)1 + 0x300000000ULL,
-    RCC_GPIOC  = (u64)2 + 0x300000000ULL,
-    RCC_CRC    = (u64)12 + 0x300000000ULL,
-    RCC_DMA1   = (u64)21 + 0x300000000ULL,
-    RCC_DMA2   = (u64)22 + 0x300000000ULL,
+    RCC_GPIOA  = (uint64_t)0 + 0x300000000ULL,
+    RCC_GPIOB  = (uint64_t)1 + 0x300000000ULL,
+    RCC_GPIOC  = (uint64_t)2 + 0x300000000ULL,
+    RCC_CRC    = (uint64_t)12 + 0x300000000ULL,
+    RCC_DMA1   = (uint64_t)21 + 0x300000000ULL,
+    RCC_DMA2   = (uint64_t)22 + 0x300000000ULL,
 
 
 /* AHB2 Peripherals*/
 
-    RCC_OTGFS   = (u64)39 + 0x300000000ULL,
+    RCC_OTGFS   = (uint64_t)39 + 0x300000000ULL,
 
 
 /* APB1 Peripherals */
 
-    RCC_TIM2   = (u64)64 + 0x300000000ULL,
-    RCC_TIM3   = (u64)65 + 0x300000000ULL,
-    RCC_TIM4   = (u64)66 + 0x300000000ULL,
-    RCC_TIM5   = (u64)67 + 0x300000000ULL,
-    RCC_WWDG   = (u64)75 + 0x300000000ULL,
-    RCC_SPI2   = (u64)78 + 0x300000000ULL,
-    RCC_SPI3   = (u64)79 + 0x300000000ULL,
-    RCC_USART2 = (u64)81 + 0x300000000ULL,
-    RCC_I2C1   = (u64)85 + 0x300000000ULL,
-    RCC_I2C2   = (u64)85 + 0x300000000ULL,
-    RCC_I2C3   = (u64)87 + 0x300000000ULL,
-    RCC_PWR    = (u64)92 + 0x300000000ULL,
+    RCC_TIM2   = (uint64_t)64 + 0x300000000ULL,
+    RCC_TIM3   = (uint64_t)65 + 0x300000000ULL,
+    RCC_TIM4   = (uint64_t)66 + 0x300000000ULL,
+    RCC_TIM5   = (uint64_t)67 + 0x300000000ULL,
+    RCC_WWDG   = (uint64_t)75 + 0x300000000ULL,
+    RCC_SPI2   = (uint64_t)78 + 0x300000000ULL,
+    RCC_SPI3   = (uint64_t)79 + 0x300000000ULL,
+    RCC_USART2 = (uint64_t)81 + 0x300000000ULL,
+    RCC_I2C1   = (uint64_t)85 + 0x300000000ULL,
+    RCC_I2C2   = (uint64_t)85 + 0x300000000ULL,
+    RCC_I2C3   = (uint64_t)87 + 0x300000000ULL,
+    RCC_PWR    = (uint64_t)92 + 0x300000000ULL,
 
 
 /* APB2 Peripherals */
 
-    RCC_TIM1   = (u64)96 + 0x300000000ULL,
-    RCC_USART1 = (u64)100 + 0x300000000ULL,
-    RCC_USART6 = (u64)101 + 0x300000000ULL,
-    RCC_SDIO   = (u64)107 + 0x300000000ULL,
-    RCC_SPI1   = (u64)108 + 0x300000000ULL,
-    RCC_SPI4   = (u64)109 + 0x300000000ULL,
-    RCC_SYSCFG = (u64)110 + 0x300000000ULL,
-    RCC_TIM9   = (u64)112 + 0x300000000ULL,
-    RCC_TIM10  = (u64)113 + 0x300000000ULL,
-    RCC_TIM11  = (u64)114 + 0x300000000ULL,
+    RCC_TIM1   = (uint64_t)96 + 0x300000000ULL,
+    RCC_USART1 = (uint64_t)100 + 0x300000000ULL,
+    RCC_USART6 = (uint64_t)101 + 0x300000000ULL,
+    RCC_SDIO   = (uint64_t)107 + 0x300000000ULL,
+    RCC_SPI1   = (uint64_t)108 + 0x300000000ULL,
+    RCC_SPI4   = (uint64_t)109 + 0x300000000ULL,
+    RCC_SYSCFG = (uint64_t)110 + 0x300000000ULL,
+    RCC_TIM9   = (uint64_t)112 + 0x300000000ULL,
+    RCC_TIM10  = (uint64_t)113 + 0x300000000ULL,
+    RCC_TIM11  = (uint64_t)114 + 0x300000000ULL,
 }RCC_Peripheral_t;
 
 
@@ -107,7 +108,7 @@ typedef enum {
  * Notes:
  *      - Once PLL or PLL2 are enabled, they can't be configured
  */
-RCC_ErrorStatus_t RCC_EnableClk(u8 Copy_Clk);
+RCC_ErrorStatus_t RCC_EnableClk(uint8_t Copy_Clk);
 
 
 /**
@@ -120,7 +121,7 @@ RCC_ErrorStatus_t RCC_EnableClk(u8 Copy_Clk);
  * Notes:
  *      - Can't set the Clock OFF it is the System clock
  */
-RCC_ErrorStatus_t RCC_DisableClk(u8 Copy_Clk);
+RCC_ErrorStatus_t RCC_DisableClk(uint8_t Copy_Clk);
 
 
 /**
@@ -132,7 +133,7 @@ RCC_ErrorStatus_t RCC_DisableClk(u8 Copy_Clk);
  * Notes:
  *      - The selected Clock has to be enabled first
  */
-RCC_ErrorStatus_t RCC_SetSystemClk(u8 Copy_SystemClk);
+RCC_ErrorStatus_t RCC_SetSystemClk(uint8_t Copy_SystemClk);
 
 
 /**
@@ -141,7 +142,7 @@ RCC_ErrorStatus_t RCC_SetSystemClk(u8 Copy_SystemClk);
  * @param Copy_SystemClk RCC_SystemClk_HSI or RCC_SystemClk_HSE
  * @return RCC_ErrorStatus_t RCC_OK if all good, RCC_NOK if argument is not in range
  */
-RCC_ErrorStatus_t RCC_SetPllSource(u8 Copy_SystemClk);
+RCC_ErrorStatus_t RCC_SetPllSource(uint8_t Copy_SystemClk);
 
 
 /**
@@ -159,7 +160,7 @@ RCC_ErrorStatus_t RCC_SetPllSource(u8 Copy_SystemClk);
  *      - P values are either 2, 4, 6, 8. Output must not exceed 84MHz
  *      - Range of Q is 2 to 15 and its output must be 48Mhz
  */
-RCC_ErrorStatus_t RCC_SetPllClk(u8 Copy_M, u16 Copy_N, u8 Copy_P, u8 Copy_Q);
+RCC_ErrorStatus_t RCC_SetPllClk(uint8_t Copy_M, uint16_t Copy_N, uint8_t Copy_P, uint8_t Copy_Q);
 
 /**
  * @brief Enables the clock of the selected peripheral
@@ -185,7 +186,7 @@ RCC_ErrorStatus_t RCC_DisablePeripheral(RCC_Peripheral_t Copy_Peripheral);
  * @param Copy_AHB_Prescale Prescale value
  * @return RCC_ErrorStatus_t RCC_OK if all good, RCC_NOK if argument is not in range
  */
-RCC_ErrorStatus_t RCC_SetAHBPrescale(u8 Copy_AHB_Prescale);
+RCC_ErrorStatus_t RCC_SetAHBPrescale(uint8_t Copy_AHB_Prescale);
 
 /**
  * @brief Sets the Prescale for APB1 Bus
@@ -193,7 +194,7 @@ RCC_ErrorStatus_t RCC_SetAHBPrescale(u8 Copy_AHB_Prescale);
  * @param Copy_AHB_Prescale Prescale value
  * @return RCC_ErrorStatus_t RCC_OK if all good, RCC_NOK if argument is not in range
  */
-RCC_ErrorStatus_t RCC_SetAPB1Prescale(u8 Copy_APB_Prescale);
+RCC_ErrorStatus_t RCC_SetAPB1Prescale(uint8_t Copy_APB_Prescale);
 
 /**
  * @brief Sets the Prescale for APB2 Bus
@@ -201,6 +202,6 @@ RCC_ErrorStatus_t RCC_SetAPB1Prescale(u8 Copy_APB_Prescale);
  * @param Copy_AHB_Prescale Prescale value
  * @return RCC_ErrorStatus_t RCC_OK if all good, RCC_NOK if argument is not in range
  */
-RCC_ErrorStatus_t RCC_SetAPB2Prescale(u8 Copy_APB_Prescale);
+RCC_ErrorStatus_t RCC_SetAPB2Prescale(uint8_t Copy_APB_Prescale);
 
 #endif /* RCC_RCC_H_ */
