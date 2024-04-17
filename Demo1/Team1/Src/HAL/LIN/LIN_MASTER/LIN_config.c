@@ -1,9 +1,9 @@
 
-#include "STD_Types.h"
-#include "HAL/LIN_Types.h"
-#include "LIN_cfg.h"
-#include "HAL/LIN_MASTER/LIN_Master_config.h"
-#include "HAL/LIN_SLAVE/LIN_Slave_config.h"
+#include "LIB/std_types.h"
+#include "HAL/LIN/LIN_Types.h"
+#include "HAL/LIN/LIN_cfg.h"
+#include "HAL/LIN/LIN_MASTER/LIN_Master_config.h"
+#include "HAL/LIN/LIN_SLAVE/LIN_Slave_config.h"
 
 static Message_8_Byte_Data_t MSG0Data;
 static Message_8_Byte_Data_t MSG1Data;
@@ -50,7 +50,7 @@ const LIN_Message_t Master_Messages[_MASTER_MSG_NUM] =
                 .Relation = Receiver,
                 .Signals_Num = 2,
                 .Signals[0] = &Signals[0],
-                .Signals[1] = &Signals[2]},
+                .Signals[1] = &Signals[1]},
         [Second_MSG] =
             {
                 .ID = 0x5,
@@ -60,9 +60,9 @@ const LIN_Message_t Master_Messages[_MASTER_MSG_NUM] =
                 .Relation = Sender,
                 .Signals_Num = 2,
                 .Signals[0] = &Signals[0],
-                .Signals[1] = &Signals[2]}};
+                .Signals[1] = &Signals[1]}};
 
 const LIN_SchedTableEntry_t SchedTable[SCHED_TABLE_MESSAGES_NUM] =
     {
-        [0] = {.Message = &Master_Messages[0], .TimeSlotMs = 500},
-        [1] = {.Message = &Master_Messages[1], .TimeSlotMs = 600}};
+        [0] = {.Message = &Master_Messages[0], .TimeSlotMs = 10},
+        [1] = {.Message = &Master_Messages[1], .TimeSlotMs = 10}};

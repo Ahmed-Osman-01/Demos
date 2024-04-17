@@ -1,7 +1,7 @@
 
-#include "STD_Types.h"
-#include "HAL/LIN_Types.h"
-#include "HAL/LIN_SLAVE/LIN_Slave_config.h"
+#include "LIB/std_types.h"
+#include "HAL/LIN/LIN_Types.h"
+#include "HAL/LIN/LIN_SLAVE/LIN_Slave_config.h"
 
 static Message_5_Byte_Data_t MSG0Data;
 static Message_5_Byte_Data_t MSG1Data;

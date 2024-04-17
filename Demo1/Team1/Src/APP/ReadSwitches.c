@@ -13,29 +13,33 @@
 /************************************************Includes************************************************/
 /********************************************************************************************************/
 #include "HAL/KEYPAD/Keypad.h"
-
+#include "HAL/LIN/LIN_MASTER/LIN_MasterAppData.h"
 /********************************************************************************************************/
 /************************************************Defines*************************************************/
 /********************************************************************************************************/
-
-enum switches{
+enum switches_Directions{
     Up,
     Down,
     Left,
     Right,
+};
+
+
+enum switches_Control{
     Start,
     Stop,
     Edit,
     Mode,
-    Ok
+    Ok,
+    Reset
 };
 
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
 
-u16 Switches_Status = 0;
-
+extern uint8_t Switches_CTRL_Control;
+extern uint8_t Switches_CTRL_Directions;
 /********************************************************************************************************/
 /*********************************************APIs Implementation****************************************/
 /********************************************************************************************************/
@@ -44,40 +48,43 @@ u16 Switches_Status = 0;
 void readSwitches (void)
 {
     char pressedKey;
-    Switches_Status = 0;
+    Switches_CTRL_Control = 0;
+    Switches_CTRL_Directions = 0;
     KEYPAD_getPressedKey(&pressedKey);
     
     switch (pressedKey)
     {
         case 'U':
-            Switches_Status = (1 << Up);
+            Switches_CTRL_Directions = (1 << Up);
+            Switches_CTRL_Control = (1 << Reset);
             break;
         case 'D':
-            Switches_Status = (1 << Down);
+            Switches_CTRL_Directions = (1 << Down);
             break;
         case 'L':
-            Switches_Status = (1 << Left);
+            Switches_CTRL_Directions = (1 << Left);
             break;
         case 'R':
-            Switches_Status = (1 << Right);
+            Switches_CTRL_Directions = (1 << Right);
             break;
         case 'S':
-            Switches_Status = (1 << Start);
+            Switches_CTRL_Control = (1 << Start);
             break;
         case 'P':
-            Switches_Status = (1 << Stop);
+            Switches_CTRL_Control = (1 << Stop);
             break;
         case 'E':
-            Switches_Status = (1 << Edit);
+            Switches_CTRL_Control = (1 << Edit);
             break;
         case 'M':
-            Switches_Status = (1 << Mode);
+            Switches_CTRL_Control = (1 << Mode);
             break;
         case 'K':
-            Switches_Status = (1 << Ok);
+            Switches_CTRL_Control = (1 << Ok);
             break;
         default:
-            Switches_Status = 0;
+            Switches_CTRL_Control = 0;
+            Switches_CTRL_Directions = 0;
             break;
     }
 }

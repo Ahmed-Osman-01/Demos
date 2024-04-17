@@ -37,7 +37,10 @@ enum date {
     day2,
     month1,
     month2,
-    year        
+    year1,
+    year2,
+    year3,
+    year4      
 };
 
 /********************************************************************************************************/
@@ -47,25 +50,28 @@ enum date {
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
-u16 Time[7] = {
-    [millisecond] = 0, /*First Delay is 30 ms*/
-    [sec1] = 0,
-    [sec2] = 3,
-    [min1] = 6,
-    [min2] = 2,
-    [hour1] = 0,
+volatile uint16_t Time[7] = {
+    [millisecond] = 800, 
+    [sec1] = 9,
+    [sec2] = 5,
+    [min1] = 9,
+    [min2] = 5,
+    [hour1] = 3,
     [hour2] = 2,
 }; 
 
-u16 Date[5] = {
-    [day1] = 6,
-    [day2] = 1,
-    [month1] = 4,
-    [month2] = 0,
-    [year] = 2024  
+volatile uint16_t Date[8] = {
+    [day1] = 1,
+    [day2] = 3,
+    [month1] = 2,
+    [month2] = 1,
+    [year1] = 4,
+    [year2] = 2,
+    [year3] = 0,
+    [year4] = 2,
 };
 
-u8 isDay = 0;
+volatile uint8_t isDay = 0;
 
 /********************************************************************************************************/
 /*********************************************Static Functions*******************************************/
@@ -102,7 +108,7 @@ static void TimeFeature(void)
     
     Time[hour2] += Time[hour1] / 10;
     Time[hour1] %= 10;
-    if (Time[hour1] >= 4)
+    if (Time[hour1] >= 4 && Time[hour2] == 2)
     {
         Time[hour1] -= 4;
 		Time[hour2] -= 2;
@@ -112,26 +118,45 @@ static void TimeFeature(void)
 
 static void DateFeature (void)
 {
-    if(isDay)
-	{
-		Date[day1] ++;
-		Date[day2] += Date[day1] / 10;
-		Date[day1] %= 10;
-		if(Date[day2] == 3 && Date[day1] == 1)
-		{
-			Date[day2] -= 3;
-			Date[day1] = 1;
-			Date[month1]++;
-		}
-		
-		Date[month2] += Date[month1] / 10;
-		Date[month1] %= 10;
-		if(Date[month2] == 1 && Date[month1] == 3)
-		{
-			Date[month2] -= 1;
-			Date[month1] = 1;
-			Date[year]++;        
-		}
+    if (isDay)
+    {
+        Date[day1]++;
+        Date[day2] += Date[day1] / 10;
+        Date[day1] %= 10;
+        if (Date[day2] == 3 && Date[day1] == 2)
+        {
+            Date[day2] -= 3;
+            Date[day1] = 1;
+            Date[month1]++;
+        }
+
+        Date[month2] += Date[month1] / 10;
+        Date[month1] %= 10;
+        if (Date[month2] == 1 && Date[month1] == 3)
+        {
+            Date[month2] -= 1;
+            Date[month1] = 1;
+            Date[year1]++;
+            if (Date[year1] >= 10)
+            {
+                Date[year1] = 0;
+                Date[year2]++;
+                if (Date[year2] >= 10)
+                {
+                    Date[year2] = 0;
+                    Date[year3]++;
+                    if (Date[year3] >= 10)
+                    {
+                        Date[year3] = 0;
+                        Date[year4]++;
+                        if (Date[year4] >= 10)
+                        {
+                            // Handle year overflow if needed
+                        }
+                    }
+                }
+            }
+        }
 		isDay = 0;
 	}
 }
@@ -148,7 +173,7 @@ void DateTime(void)
 }
 
 
-void setTime (u8 hours, u8 minutes, u8 seconds, u16 milliseconds)
+void setTime (uint8_t hours, uint8_t minutes, uint8_t seconds, uint16_t milliseconds)
 {
     Time[hour1] = hours % 10;
     Time[hour2] = hours / 10;
@@ -157,13 +182,4 @@ void setTime (u8 hours, u8 minutes, u8 seconds, u16 milliseconds)
     Time[sec1] = seconds % 10;
     Time[sec2] = seconds / 10;
     Time[millisecond] = milliseconds;
-}
-
-void setDate (u16 years, u8 months, u8 days)
-{
-    Date[year] = years;
-    Date[month1] = months % 10;
-    Date[month2] = months / 10;
-    Date[day1] = days % 10;
-    Date[day2] = days / 10;
 }

@@ -2,13 +2,13 @@
 /************************************************Includes************************************************/
 /********************************************************************************************************/
 
-#include "HAL/LIN_Types.h"
-#include "MCAL/GPIO_DRIVER.h"
-#include "MCAL/USART_DRIVER.h"
-#include "MCAL/STM32f401CC_IRQ.h"
-#include "MCAL/NVIC_DRIVER.h"
-#include "HAL/LIN_SLAVE/LIN_Slave.h"
-#include "HAL/LIN_SLAVE/LIN_Slave_config.h"
+#include "HAL/LIN/LIN_Types.h"
+#include "MCAL/GPIO/GPIO_DRIVER.h"
+#include "MCAL/USART/USART_DRIVER.h"
+#include "MCAL/NVIC/STM32f401CC_IRQ.h"
+#include "MCAL/NVIC/NVIC_DRIVER.h"
+#include "HAL/LIN/LIN_SLAVE/LIN_Slave.h"
+#include "HAL/LIN/LIN_SLAVE/LIN_Slave_config.h"
 /********************************************************************************************************/
 /************************************************Defines*************************************************/
 /********************************************************************************************************/
@@ -24,8 +24,8 @@
 /********************************************************************************************************/
 typedef struct
 {
-    u8_t Sync_Byte;
-    u8_t PID;
+    uint8_t Sync_Byte;
+    uint8_t PID;
 } Header_t;
 
 /********************************************************************************************************/
@@ -33,13 +33,13 @@ typedef struct
 /********************************************************************************************************/
 
 // static Header_t LIN_Header;
-static u8_t LIN_Header[2];
+static uint8_t LIN_Header[2];
 static USART_Req_t Header_Buffer;
 static USART_Req_t Send_Buffer;
 static USART_Req_t Recieve_Buffer;
-static u8_t USART_Peri;
-static u8_t Temp_DataReceive[LIN_TEMP_DATA_SIZE];
-static u8_t Temp_DataSend[LIN_TEMP_DATA_SIZE];
+static uint8_t USART_Peri;
+static uint8_t Temp_DataReceive[LIN_TEMP_DATA_SIZE];
+static uint8_t Temp_DataSend[LIN_TEMP_DATA_SIZE];
 static LIN_Message_t *CurrMSG;
 extern const LIN_Message_t Slave1_Messages[_SLAVE1_MSG_NUM];
 
@@ -51,8 +51,8 @@ static void Receive_Header(void);
 static void RecieveTempData(void);
 static Error_Status ReceiveData(void);
 static void SendData(void);
-static u8_t Calculate_Checksum(u8_t PID, u8_t *Data, u8_t size);
-static u8_t CalculatePid(u8_t ID);
+static uint8_t Calculate_Checksum(uint8_t PID, uint8_t *Data, uint8_t size);
+static uint8_t CalculatePid(uint8_t ID);
 Error_Status LIN_Collect_DatafromMSG(LIN_Message_t *MSG);
 Error_Status LIN_Publish_DataToMSG(LIN_Message_t *MSG);
 
@@ -65,8 +65,8 @@ Error_Status LIN_SlaveInit(LIN_cfg_t LIN_CfgArr)
     Error_Status LOC_Status = Status_NOK;
     GPIO_Pin_t LIN_Pins[2] = {[0] = {.Pin = LIN_CfgArr.TX_Pin.Pin, .Port = LIN_CfgArr.TX_Pin.Port, .Mode = GPIO_MODE_AF_PP, .Speed = GPIO_SPEED_VHIGH},
                               [1] = {.Pin = LIN_CfgArr.RX_Pin.Pin, .Port = LIN_CfgArr.RX_Pin.Port, .Mode = GPIO_MODE_AF_PP, .Speed = GPIO_SPEED_VHIGH}};
-    u8_t LOC_Alternatefunc = 0;
-    u8_t LOC_IRQ_Enable = 0;
+    uint8_t LOC_Alternatefunc = 0;
+    uint8_t LOC_IRQ_Enable = 0;
 
     switch (LIN_CfgArr.address)
     {
@@ -128,8 +128,8 @@ void Receive_Header(void)
 Error_Status LIN_SlaveTask()
 {
     Error_Status LOC_Status = Status_NOK;
-    u8_t Index;
-    u8_t PID;
+    uint8_t Index;
+    uint8_t PID;
     CurrMSG = NULL;
 
     //  if (LIN_Header.Sync_Byte != LIN_SYNC_BYTE)
@@ -185,8 +185,8 @@ static void RecieveTempData(void)
 
 static void SendData(void)
 {
-    u8_t CheckSum;
-    u8_t Index;
+    uint8_t CheckSum;
+    uint8_t Index;
 
     CheckSum = Calculate_Checksum(CurrMSG->PID, CurrMSG->Data, CurrMSG->Data_Length);
     Send_Buffer.USART_Peri = USART_Peri;
@@ -206,8 +206,8 @@ static void SendData(void)
 
 static Error_Status ReceiveData(void)
 {
-    u8_t CheckSum;
-    u8_t Index;
+    uint8_t CheckSum;
+    uint8_t Index;
     Error_Status LOC_Status = Status_NOK;
 
     CheckSum = Calculate_Checksum(CurrMSG->PID, Temp_DataReceive, CurrMSG->Data_Length);
@@ -229,10 +229,10 @@ static Error_Status ReceiveData(void)
     return LOC_Status;
 }
 
-static u8_t CalculatePid(u8_t ID)
+static uint8_t CalculatePid(uint8_t ID)
 {
-    u8_t Index;
-    u8_t PID;
+    uint8_t Index;
+    uint8_t PID = 0;
 
     if (ID > LIN_MAX_ID)
     {
@@ -240,24 +240,24 @@ static u8_t CalculatePid(u8_t ID)
     }
     else
     {
-        u8_t ID_Bits[6];
+        uint8_t ID_Bits[6];
         for (Index = 0; Index < 6; Index++)
         {
             ID_Bits[Index] = (ID >> Index) & 0x01;
         }
 
-        u8_t P0 = (ID_Bits[0] ^ ID_Bits[1] ^ ID_Bits[2] ^ ID_Bits[4]) & LIN_GET_1ST_BIT_MASK;
-        u8_t P1 = ~((ID_Bits[1] ^ ID_Bits[3] ^ ID_Bits[4] ^ ID_Bits[5]) & LIN_GET_1ST_BIT_MASK);
+        uint8_t P0 = (ID_Bits[0] ^ ID_Bits[1] ^ ID_Bits[2] ^ ID_Bits[4]) & LIN_GET_1ST_BIT_MASK;
+        uint8_t P1 = ~((ID_Bits[1] ^ ID_Bits[3] ^ ID_Bits[4] ^ ID_Bits[5]) & LIN_GET_1ST_BIT_MASK);
 
         PID = ID | (P0 << 6) | (P1 << 7);
     }
     return PID;
 }
 
-static u8_t Calculate_Checksum(u8_t PID, u8_t *Data, u8_t Size)
+static uint8_t Calculate_Checksum(uint8_t PID, uint8_t *Data, uint8_t Size)
 {
-    u8_t CheckSum = PID;
-    u16_t Index;
+    uint8_t CheckSum = PID;
+    uint16_t Index;
 
     for (Index = 0; Index < Size; Index++)
     {
