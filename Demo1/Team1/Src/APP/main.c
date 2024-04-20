@@ -1,83 +1,39 @@
-#include "MCAL/GPIO/GPIO.h"
+
 #include "MCAL/RCC/RCC.h"
-#include "MCAL/NVIC/NVIC.h"
-#include "MCAL/SYSTICK/SYSTICK.h"
-#include "MCAL/USART/USART.h"
-#include "HAL/LED/LED.h"
-#include "HAL/LCD/LCD.h"
 #include "HAL/KEYPAD/Keypad.h"
+#include "HAL/LCD/LCD_DRIVER.h"
 #include "SERVICE/SCHED/sched.h"
-
-#define TEST_LCD 		0
-#define TEST_USART		0
-#define TEST_KEYPAD		1
-
-#if TEST_LCD == 1
-int main(int argc, char* argv[])
-{
-	RCC_Ctrl_AHB1_Clk(RCC_GPIOA_ENABLE_DISABLE,RCC_enuPeriphralEnable);
-	LCD_InitAsync();
-	Sched_Init();
-	Sched_Start();
-}
-#elif TEST_USART == 1
-
-#define TX1		0
-#define RX1		1	
-void toggle_Led (void);
-int main(int argc, char* argv[])
-{
-	GPIO_Pin_t USART_pins[2] = {[TX1] = {.GPIO_Pin = GPIO_PIN_9 , .GPIO_Port = GPIO_PORT_A, .GPIO_Mode = GPIO_MODE_AF_PP, .GPIO_Speed = GPIO_SPEED_HIGH},
-								[RX1] = {.GPIO_Pin = GPIO_PIN_10, .GPIO_Port = GPIO_PORT_A, .GPIO_Mode = GPIO_MODE_AF_PP, .GPIO_Speed = GPIO_SPEED_HIGH}};
-	u8 data1 ;
-	u8 data2[] = "MOMEN";
-	USART_Req_t USART_Req1 = {.data = &data1, .length = 1, .USART_Number= USART1 ,.CB = NULL_PTR};
-	USART_Req_t USART_Req2 = {.data = data2, .length = 6, .USART_Number= USART1 ,.CB = toggle_Led};
-
-	RCC_Ctrl_AHB1_Clk(RCC_GPIOA_ENABLE_DISABLE,RCC_enuPeriphralEnable);
-	RCC_Ctrl_APB2_Clk(RCC_USART1_ENABLE_DISABLE,RCC_enuPeriphralEnable);
-	NVIC_EnableIRQ(USART1_IRQn);
-	GPIO_Init(&USART_pins[TX1]);
-	GPIO_Init(&USART_pins[RX1]);
-	LED_Init();
-	USART_init();
-	GPIO_CfgAlternateFn(USART_pins[TX1].GPIO_Port,USART_pins[TX1].GPIO_Pin,GPIO_FUNC_AF7);
-	GPIO_CfgAlternateFn(USART_pins[RX1].GPIO_Port,USART_pins[RX1].GPIO_Pin,GPIO_FUNC_AF7);
-	u16 timeout = 50000;
-	while(1)
-	{
-		USART_recieveBufferAsyncZC(USART_Req2);
-		while(timeout)
-		{
-			timeout--;
-		}
-		if(*(USART_Req2.data) == "Momen")
-		{
-			void toggle_Led (void);
-		}
-	}
-	return 0;
-}
-void toggle_Led (void)
-{
-	LED_toggle(LED_Alarm);
-}
-
-
-#elif TEST_KEYPAD == 1
+#include "MCAL/USART/USART_DRIVER.h"
+#include "HAL/LIN/LIN_MASTER/LIN_Master.h"
+#include "HAL/LIN/LIN_MASTER/LIN_MasterAppData.h"
+#include "HAL/LIN/LIN_SLAVE/LIN_SLave.h"
+#include "HAL/LIN/LIN_SLAVE/LIN_SlaveAppData.h"
+#include "MCAL/GPIO/GPIO_DRIVER.h"
 
 int main(int argc, char* argv[])
 {
 	RCC_Ctrl_AHB1_Clk(RCC_GPIOA_ENABLE_DISABLE,RCC_enuPeriphralEnable);
-    RCC_Ctrl_AHB1_Clk(RCC_GPIOB_ENABLE_DISABLE,RCC_enuPeriphralEnable);
+	RCC_Ctrl_AHB1_Clk(RCC_GPIOB_ENABLE_DISABLE,RCC_enuPeriphralEnable);
+	RCC_Ctrl_APB1_Clk(RCC_USART2_ENABLE_DISABLE,RCC_enuPeriphralEnable);
+
+	LIN_Pin_cfg_t LIN_Pins[2] = {
+	[0] = {.Port = GPIO_PORT_A, .Pin = GPIO_PIN_2}, 
+	[1] = {.Port = GPIO_PORT_A, .Pin = GPIO_PIN_3}};
+
+  	LIN_cfg_t LIN_Arr1 = {.TX_Pin = LIN_Pins[0], .RX_Pin = LIN_Pins[1], .address = USART_Peri_2, .BaudRate = 9600,
+	.WordLength = USART_WORD_LENGTH_8, .ParityControl = USART_PARITY_DISABLE, .ParitySelect = USART_PARITY_DISABLE,
+	.StopBits = USART_STOP_BITS_1, .OverSampling = USART_OVERSAMPLING_16, .LIN_Mode = USART_LIN_MODE_ENABLE,
+	.LIN_IRQ = USART_LIN_IRQ_ENABLE, .LIN_BreakLength = USART_LIN_BRK_LENGTH_11};
+
+  	LIN_MasterInit(LIN_Arr1);
 	KEYPAD_Init();
 	LCD_Init();
+
 	Sched_Init();
 	Sched_Start();
 }
 
 
-#endif
 
 
 

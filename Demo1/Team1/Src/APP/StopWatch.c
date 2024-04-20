@@ -1,10 +1,10 @@
 /******************************************************************************
 *
-* Module:
+* Module: stopWatch
 *
-* File Name:
+* File Name: StopWatch.c
 *
-* Description: Source file for the ..... driver for STM32F401xC
+* Description: Source file for the stopwatch module
 *
 * Author: Momen Elsayed Shaban
 *
@@ -22,6 +22,7 @@
 #define HOURS_PER_DAY           24
 #define START_MASK              0x10
 #define STOP_MASK               0x20
+#define UP_MASK                 0x01
 
 enum time {
     millisecond,
@@ -36,11 +37,11 @@ enum time {
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
-extern u16 Switches_Status;
+extern volatile uint16_t Switches_Status;
 
-u8 start_flag = 0;
+volatile uint8_t start_flag = 0;
 
-u16 stopWatchTime[7] = {
+uint16_t stopWatchTime[7] = {
     [millisecond] = 0, 
     [sec1] = 0,
     [sec2] = 0,
@@ -57,7 +58,11 @@ static void StopWatchFeature(void)
 {
     if(Switches_Status & STOP_MASK)
     {
-        u8 idx = 0;
+        start_flag = 0;
+    }
+    else if (Switches_Status & UP_MASK)
+    {
+        uint8_t idx = 0;
         for(idx = 0 ; idx < 7; idx++)
         {
             stopWatchTime[idx] = 0;
@@ -115,21 +120,3 @@ void stopWatch(void)
     StopWatchFeature();
 }
 
-#if 0
-else if (Switches_Status & STOP_MASK)
-    {
-        u8 idx = 0;
-        for(idx = 0 ; idx < 7; idx++)
-        {
-                stopWatchTime[idx] = 0;
-        }
-        start_flag = 0;
-        reset_counter++;
-        if(reset_counter == 2)
-        {
-            
-            reset_counter = 0;
-            
-        }
-    }
-#endif

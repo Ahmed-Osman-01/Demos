@@ -12,13 +12,13 @@
 /********************************************************************************************************/
 /************************************************Includes************************************************/
 /********************************************************************************************************/
-#include "LIB/std_types.h"
-#include "HAL/LCD/LCD.h"
+#include "HAL/LCD/LCD_DRIVER.h"
 
 
 /********************************************************************************************************/
 /************************************************Defines*************************************************/
 /********************************************************************************************************/
+
 #define DATE_POS_Y          0
 #define DAY2_POS_X          3
 #define DAY1_POS_X          4
@@ -45,8 +45,6 @@
 #define DOWN_MASK           0x0002
 #define LEFT_MASK           0x0004
 #define RIGHT_MASK          0x0008
-#define EDIT_MASK           0x0040
-#define OK_MASK             0x1000
 
 enum cursorPos{
     x_pos,
@@ -56,13 +54,6 @@ enum cursorPos{
 /********************************************************************************************************/
 /************************************************Types***************************************************/
 /********************************************************************************************************/
-enum states{
-    Edit_Mode,
-    Edit_Digit,
-};
-
-
-
 enum time {
     millisecond,
     sec1,
@@ -73,18 +64,27 @@ enum time {
     hour2,
 };
 
-
+enum date {
+    day1,
+    day2,
+    month1,
+    month2,
+    year1,
+    year2,
+    year3,
+    year4      
+};
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
-u8 Valid_X_Pos_Values[6] = {HOUR2_POS_X,HOUR1_POS_X,MINUTES2_POS_X,MINUTES1_POS_X,SECONDS2_POS_X,SECONDS1_POS_X};
+uint8_t Valid_X_Pos_Values[6] = {HOUR2_POS_X,HOUR1_POS_X,MINUTES2_POS_X,MINUTES1_POS_X,SECONDS2_POS_X,SECONDS1_POS_X};
 
-s8 cursor_pos[2] = {
+sint8_t cursor_pos[2] = {
     [x_pos] = 0,
     [y_pos] = 0,
 };
 
-u16 EditedTime[7]={
+sint16_t EditedTime[7]={
     [millisecond] = 0,
     [sec1] = 0,
     [sec2] = 0,
@@ -94,16 +94,27 @@ u16 EditedTime[7]={
     [hour2] = 0,
 };
 
-u8 Edit_state = Edit_Mode;
-static u8 validCursorPos = 0;
-extern u16 Switches_Status;
-extern u16 Time[7];
-u8 EditDigit_Flag = 0;
+sint16_t EditedDate[8] ={
+    [day1] = 7,
+    [day2] = 1,
+    [month1] = 4,
+    [month2] = 0,
+    [year1] = 4,
+    [year2] = 2,
+    [year3] = 0,
+    [year4] = 2,
+};
 
+uint8_t validCursorPos = 0;
+extern uint16_t Switches_Status;
+extern uint16_t Time[7];
+extern uint16_t Date[8];
+extern volatile uint8_t temp4[13];
+extern volatile uint8_t temp5[11];
 /********************************************************************************************************/
-/*****************************************Static Functions Prototype*************************************/
+/*********************************************APIs Implementation****************************************/
 /********************************************************************************************************/
-static void trackCursor(void)
+void trackCursor(void)
 {
     if(Switches_Status & UP_MASK)
     {
@@ -112,6 +123,7 @@ static void trackCursor(void)
         {
             cursor_pos[y_pos] = 1;
         }
+        LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
     else if(Switches_Status & DOWN_MASK)
     {
@@ -120,6 +132,7 @@ static void trackCursor(void)
         {
             cursor_pos[y_pos] = 0;
         }
+        LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
     else if(Switches_Status & LEFT_MASK)
     {
@@ -128,6 +141,7 @@ static void trackCursor(void)
         {
             cursor_pos[x_pos] = 15;
         }
+        LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
     else if(Switches_Status & RIGHT_MASK)
     {
@@ -136,14 +150,16 @@ static void trackCursor(void)
         {
             cursor_pos[x_pos] = 0;
         }
+        LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
+    
 }
 
-static void validateCursorPos(u8 x_pos , u8 y_pos)
+void validateCursorPos(uint8_t x_pos , uint8_t y_pos)
 {
-    u8 iterator = 0;
-    u8 valid_y_pos = 0;
-    u8 valid_x_pos = 0;
+    uint8_t iterator = 0;
+    uint8_t valid_y_pos = 0;
+    uint8_t valid_x_pos = 0;
     if(y_pos == 1)
     {
         valid_y_pos = 1;
@@ -167,20 +183,19 @@ static void validateCursorPos(u8 x_pos , u8 y_pos)
     validCursorPos = valid_y_pos & valid_x_pos;
 }
 
-static void CopyTime (u16* srcTime, u16* destTime)
+void CopyTime (uint16_t* srcTime, uint16_t* destTime, uint8_t size)
 {
-    u8 idx = 0;
-    for(idx = 0; idx < 7; idx++)
+    uint8_t idx = 0;
+    for(idx = 0; idx < size; idx++)
     {
         destTime[idx] = srcTime[idx];
     }
 }
 
-static void EditTime (void)
+void EditTime (void)
 {
     if(cursor_pos[x_pos] == HOUR2_POS_X && cursor_pos[y_pos] == TIME_POS_Y )
     {
-        EditDigit_Flag = (1 << hour2);
         if(Switches_Status & UP_MASK)
         {
             EditedTime[hour2]++;
@@ -188,6 +203,10 @@ static void EditTime (void)
             {
                 EditedTime[hour2] = 0;
             }
+            temp4[0] = EditedTime[hour2] + '0';
+            LCD_WriteStringAsync((&temp4[0]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
         else if(Switches_Status & DOWN_MASK)
         {
@@ -196,6 +215,10 @@ static void EditTime (void)
             {
                 EditedTime[hour2] = 2;
             }
+            temp4[0] = EditedTime[hour2] + '0';
+            LCD_WriteStringAsync((&temp4[0]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
         else{
             /*Do Nothing*/
@@ -203,14 +226,20 @@ static void EditTime (void)
     }
     else if (cursor_pos[x_pos] == HOUR1_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        EditDigit_Flag = (1 << hour1);
         if (Switches_Status & UP_MASK)
         {
             EditedTime[hour1]++;
-            if (EditedTime[hour1] > 4)
+            if (EditedTime[hour1] > 9)
             {
                 EditedTime[hour1] = 0;
             }
+            else
+            {
+                /*Do Nothing*/
+            }
+            temp4[1] = EditedTime[hour1] + '0';
+            LCD_WriteStringAsync(&temp4[1], 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
         else if (Switches_Status & DOWN_MASK)
         {
@@ -219,11 +248,14 @@ static void EditTime (void)
             {
                 EditedTime[hour1] = 9;
             }
+            temp4[1] = EditedTime[hour1] + '0';
+            LCD_WriteStringAsync(&temp4[1], 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+           
         }
     }
     else if (cursor_pos[x_pos] == MINUTES2_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        EditDigit_Flag = (1 << min2);
         if (Switches_Status & UP_MASK)
         {
             EditedTime[min2]++;
@@ -231,6 +263,10 @@ static void EditTime (void)
             {
                 EditedTime[min2] = 0;
             }
+            temp4[3] = EditedTime[min2] + '0';
+            LCD_WriteStringAsync((&temp4[3]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
         else if (Switches_Status & DOWN_MASK)
         {
@@ -239,11 +275,14 @@ static void EditTime (void)
             {
                 EditedTime[min2] = 5;
             }
+            temp4[3] = EditedTime[min2] + '0';
+            LCD_WriteStringAsync((&temp4[3]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
     }
     else if (cursor_pos[x_pos] == MINUTES1_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        EditDigit_Flag = (1 << min1);
         if (Switches_Status & UP_MASK)
         {
             EditedTime[min1]++;
@@ -251,6 +290,10 @@ static void EditTime (void)
             {
                 EditedTime[min1] = 0;
             }
+            temp4[4] = EditedTime[min1] + '0';
+            LCD_WriteStringAsync((&temp4[4]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
         else if (Switches_Status & DOWN_MASK)
         {
@@ -259,12 +302,15 @@ static void EditTime (void)
             {
                 EditedTime[min1] = 9;
             }
+            temp4[4] = EditedTime[min1] + '0';
+            LCD_WriteStringAsync((&temp4[4]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
 
     }
     else if (cursor_pos[x_pos] == SECONDS2_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        EditDigit_Flag = (1 << sec2);
         if (Switches_Status & UP_MASK)
         {
             EditedTime[sec2]++;
@@ -272,6 +318,10 @@ static void EditTime (void)
             {
                 EditedTime[sec2] = 0;
             }
+            temp4[6] = EditedTime[sec2] + '0';
+            LCD_WriteStringAsync((&temp4[6]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
         else if (Switches_Status & DOWN_MASK)
         {
@@ -280,11 +330,14 @@ static void EditTime (void)
             {
                 EditedTime[sec2] = 5;
             }
+            temp4[6] = EditedTime[sec2] + '0';
+            LCD_WriteStringAsync((&temp4[6]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
     }
     else if (cursor_pos[x_pos] == SECONDS1_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        EditDigit_Flag = (1 << sec1);
         if (Switches_Status & UP_MASK)
         {
             EditedTime[sec1]++;
@@ -292,6 +345,10 @@ static void EditTime (void)
             {
                 EditedTime[sec1] = 0;
             }
+            temp4[7] = EditedTime[sec1] + '0';
+            LCD_WriteStringAsync((&temp4[7]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
         else if (Switches_Status & DOWN_MASK)
         {
@@ -300,53 +357,306 @@ static void EditTime (void)
             {
                 EditedTime[sec1] = 9;
             }
+            temp4[7] = EditedTime[sec1] + '0';
+            LCD_WriteStringAsync((&temp4[7]), 1, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+            
         }
     }
-    CopyTime((u16 *)EditedTime,Time);
+    CopyTime((uint16_t *)EditedTime,Time,7);
 }
 
-/********************************************************************************************************/
-/*********************************************APIs Implementation****************************************/
-/********************************************************************************************************/
-
-void EditTimeModeSM(void)
+void EditDate(void)
 {
-    CopyTime(Time,(u16 *)EditedTime);
-    switch(Edit_state)
+    if(cursor_pos[x_pos] == DAY2_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        case Edit_Mode:
-            trackCursor();
-            validateCursorPos(cursor_pos[x_pos],cursor_pos[y_pos]);
-            if((Switches_Status & EDIT_MASK) && validCursorPos)
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[day2]++;
+            if(EditedDate[day2] > 3)
             {
-                Edit_state = Edit_Digit;
+                EditedDate[day2] = 0;
             }
-            break;
-        case Edit_Digit:
-            EditTime();
-            if(Switches_Status & OK_MASK)
+            else if(EditedDate[day2] == 3)
             {
-                Edit_state = Edit_Mode;
+                EditedDate[day1] = 1;
             }
-            break;
+            else if(EditedDate[day2] == 0)
+            {
+                EditedDate[day1] = 1;
+            }
+            temp5[1] = EditedDate[day1] + '0';
+            temp5[0] = EditedDate[day2] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[day2]--;
+            if(EditedDate[day2] < 0)
+            {
+                EditedDate[day2] = 3;
+            }
+            temp5[0] = EditedDate[day2] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
     }
+    else if(cursor_pos[x_pos] == DAY1_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[day1]++;
+            if(EditedDate[day2] == 3)
+            {
+                if(EditedDate[day1] > 1)
+                {
+                    EditedDate[day1] = 0;
+                }
+            }
+            else if (EditedDate[day2] == 0)
+            {
+                if(EditedDate[day1] > 9)
+                {
+                    EditedDate[day1] = 1;
+                }
+            }
+            else if(EditedDate[day2] <= 3)
+            {
+                if(EditedDate[day1] > 9)
+                {
+                    EditedDate[day1] = 0;
+                }
+            }
+            else{
+                /*Do Nothing*/
+            }
+            temp5[1] = EditedDate[day1] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync((temp5), 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[day1]--;
+            if(EditedDate[day2] == 3)
+            {
+                if(EditedDate[day1] < 0)
+                {
+                    EditedDate[day1] = 1;
+                }
+            }
+            else if (EditedDate[day2] == 0)
+            {
+                if(EditedDate[day1] < 1)
+                {
+                    EditedDate[day1] = 1;
+                }
+            }
+            else if(EditedDate[day2] <= 3)
+            {
+                if(EditedDate[day1] < 1)
+                {
+                    EditedDate[day1] = 0;
+                }
+            }
+            else{
+                /*Do Nothing*/
+            }
+            temp5[1] = EditedDate[day1] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync((temp5), 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    else if(cursor_pos[x_pos] == MONTH2_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[month2]++;
+            if(EditedDate[month2] > 1)
+            {
+                EditedDate[month2] = 0;
+            }
+            else if(EditedDate[month2] == 1)
+            {
+                EditedDate[month1] = 1;
+            }
+            temp5[4] = EditedDate[month1] + '0';
+            temp5[3] = EditedDate[month2] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync((temp5), 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[month2]--;
+            if(EditedDate[month2] < 0)
+            {
+                EditedDate[month2] = 1;
+            }
+            temp5[3] = EditedDate[month2] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync((temp5), 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    else if(cursor_pos[x_pos] == MONTH1_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[month1]++;
+            if(EditedDate[month2] == 1)
+            {
+                if(EditedDate[month1] > 2)
+                {
+                    EditedDate[month1] = 0;
+                }
+            }
+            else if (EditedDate[month2] == 0)
+            {
+                if(EditedDate[month1] > 9)
+                {
+                    EditedDate[month1] = 1;
+                }
+            }
+            temp5[4] = EditedDate[month1] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[month1]--;
+            if (EditedDate[month2] == 0)
+            {
+                if(EditedDate[month1] < 1)
+                {
+                    EditedDate[month1] = 9;
+                }
+            }
+            else{
+                if(EditedDate[month1] < 0)
+                {
+                    EditedDate[month1] = 0;
+                }
+            }
+            temp5[4] = EditedDate[month1] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    else if(cursor_pos[x_pos] == YEAR4_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        uint8_t year1 = (EditedDate[year4] / 1000);
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[year4]++;
+            if(EditedDate[year4] > 9)
+            {
+                EditedDate[year4] = 0;
+            }
+            temp5[6] = EditedDate[year4] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[year4]--;
+            if(EditedDate[year4] < 0)
+            {
+                EditedDate[year4] = 9;
+            }
+            temp5[6] = EditedDate[year4] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    else if(cursor_pos[x_pos] == YEAR3_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[year3]++;
+            if(EditedDate[year3] > 9)
+            {
+                EditedDate[year3] = 0;
+            }
+            temp5[7] = EditedDate[year3] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[year3]--;
+            if(EditedDate[year3] < 0)
+            {
+                EditedDate[year3] = 9;
+            }
+            temp5[7] = EditedDate[year3] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    else if(cursor_pos[x_pos] == YEAR2_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[year2]++;
+            if(EditedDate[year2] > 9)
+            {
+                EditedDate[year2] = 0;
+            }
+            temp5[8] = EditedDate[year2] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[year2]--;
+            if(EditedDate[year2] < 0)
+            {
+                EditedDate[year2] = 9;
+            }
+            temp5[8] = EditedDate[year2] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    else if(cursor_pos[x_pos] == YEAR1_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
+    {
+        if(Switches_Status & UP_MASK)
+        {
+            EditedDate[year1]++;
+            if(EditedDate[year1] > 9)
+            {
+                EditedDate[year1] = 0;
+            }
+            temp5[9] = EditedDate[year1] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+        else if (Switches_Status & DOWN_MASK)
+        {
+            EditedDate[year1]--;
+            if(EditedDate[year1] < 0)
+            {
+                EditedDate[year1] = 9;
+            }
+            temp5[9] = EditedDate[year1] + '0';
+            LCD_SetCursorPositionAsync(0,3,NULL);
+            LCD_WriteStringAsync(temp5, 11, NULL);
+            LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
+        }
+    }
+    CopyTime((uint16_t *)EditedDate,Date,8);
 }
-#if 0
-switch(Edit_state)
-    {
-        case Normal_Display:
-            if(Switches_Status & EDIT_MASK)
-            {
-                EditMode_flag = 0;
-                Edit_state = Edit_Mode;
-            }
-            break;
-        case Edit_Mode:
-            trackCursor();
-            if(Switches_Status & EDIT_MASK && EditMode_flag == 0)
-            {
-                Edit_state = Edit_Digit;
-            }
-
-    }
-#endif
