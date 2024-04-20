@@ -12,8 +12,8 @@ typedef struct LIN_Message_t LIN_Message_t;
 
 typedef struct
 {
-    u8 start;
-    u8 length;
+    uint8_t start;
+    uint8_t length;
     LIN_Message_t * messgae;
 }LIN_Signal_t;
 
@@ -27,25 +27,25 @@ typedef enum
 
 typedef struct LIN_Message_t
 {
-    u8 ID;
-    u8 PID;
-    u8 dataLength;
-    u8 * data;
-    u8 checksum;
+    uint8_t ID;
+    uint8_t PID;
+    uint8_t dataLength;
+    uint8_t * data;
+    uint8_t checksum;
     LIN_MessageRelation_t relation;
     const LIN_Signal_t *signals[64];
-    u8 signalsNum;
+    uint8_t signalsNum;
 }LIN_Message_t;
 
 
 typedef struct
 {
     LIN_Message_t * message;
-    u8 timeSlotMs;
+    uint8_t timeSlotMs;
 }LIN_SchedTableEntry_t;
 
 
-typedef u8 Message0_Data_t[2];
-typedef u8 Message1_Data_t[2];
+typedef uint8_t Message0_Data_t[2];
+typedef uint8_t Message1_Data_t[2];
 
 #endif /* COMM_LIN_MASTER_LIN_TYPES_H_ */

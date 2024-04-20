@@ -12,7 +12,7 @@
 
 #include "LIB/STD_TYPES.h"
 #include "MCAL/UART/UART.h"
-#include <stdint.h>
+
 
 /* ============================================================================ */
 /*                                   MACROS                             	    */
@@ -31,10 +31,6 @@
 #define READY   0U
 #define BUSY    1U
 
-#define UART1_INDEX     0
-#define UART2_INDEX     1
-#define UART6_INDEX     2
-
 
 /* ------------------------------------- */
 /*                  MASKS                */
@@ -52,6 +48,11 @@
 
 #define UART_TXE_MASK   ((uint32_t)(1 << 7))
 #define UART_RXNE_MASK  ((uint32_t)(1 << 5))
+
+
+#define UART_LINEN_MASK ((uint32_t)(1 << 14))
+#define UART_LBDIE_MASK ((uint32_t)(1 << 6))
+#define UART_LBDL_MASK ((uint32_t)(1 << 5))
 
 #define UART_LBD_MASK   ((uint32_t)(1 << 8))
 /* ------------------------------------- */
@@ -264,7 +265,7 @@ UART_ErrorStatus_t UART_TXBufferAsyncZC(uint8_t UARTx, uint8_t * buffer, uint16_
     {
         Ret_ErrorStatus = UART_INVALID_UART;
     }
-    else if(buffer == NULL || cb == NULL)
+    else if(buffer == NULL)
     {
         Ret_ErrorStatus = UART_NULL_PTR;
     }
@@ -350,7 +351,7 @@ UART_ErrorStatus_t UART_RXBufferAsyncZC(uint8_t UARTx, uint8_t * buffer, uint16_
     {
         Ret_ErrorStatus = UART_INVALID_UART;
     }
-    else if(buffer == NULL || cb == NULL)
+    else if(buffer == NULL)
     {
         Ret_ErrorStatus = UART_NULL_PTR;
     }
@@ -392,23 +393,31 @@ UART_ErrorStatus_t UART_RXBufferAsyncZC(uint8_t UARTx, uint8_t * buffer, uint16_
 /*                      LIN FUNCTIONALITIES                            */
 /* =================================================================== */
 
-UART_ErrorStatus_t UART_SetLINState(uint8_t UARTx, uint32_t LINState)
+
+UART_ErrorStatus_t UART_ConfigLIN(uint8_t UARTx, UART_LIN_Config_t* Config)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
+    uint32_t tempReg;
 
     if(!IS_VALID_UART(UARTx))
     {
         Ret_ErrorStatus = UART_INVALID_UART;
+    }
+    else if( Config == NULL )
+    {
+        Ret_ErrorStatus = UART_NULL_PTR;
     }
     else
     {
         /* do nothing */
     }
 
-
     if(Ret_ErrorStatus == UART_OK)
     {
-        UARTs[UARTx]->CR2 |= LINState;
+        tempReg = UARTs[UARTx]->CR2;
+        tempReg &= (~UART_LINEN_MASK) | (~UART_LBDIE_MASK) | (~UART_LBDL_MASK);
+        tempReg |= (Config->State) | (Config->BreakDetectLength) | (Config->BreakDetectInterrupt);
+        UARTs[UARTx]->CR2 = tempReg;
     }
 
     return Ret_ErrorStatus;
@@ -416,7 +425,7 @@ UART_ErrorStatus_t UART_SetLINState(uint8_t UARTx, uint32_t LINState)
 
 
 
-UART_ErrorStatus_t UART_SetLINBreakDetectionLength(uint8_t UARTx, uint32_t LINBreakDetectLength)
+UART_ErrorStatus_t UART_SendBreak(uint8_t UARTx)
 {
     UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
 
@@ -432,66 +441,13 @@ UART_ErrorStatus_t UART_SetLINBreakDetectionLength(uint8_t UARTx, uint32_t LINBr
 
     if(Ret_ErrorStatus == UART_OK)
     {
-        UARTs[UARTx]->CR2 |= LINBreakDetectLength;
-    }
-
-    return Ret_ErrorStatus;
-}
-
-UART_ErrorStatus_t UART_SetLINBreakInterruptState(uint8_t UARTx, uint32_t LINBreakInterruptState)
-{
-    UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
-
-    if(!IS_VALID_UART(UARTx))
-    {
-        Ret_ErrorStatus = UART_INVALID_UART;
-    }
-    else
-    {
-        /* do nothing */
-    }
-
-
-    if(Ret_ErrorStatus == UART_OK)
-    {
-        UARTs[UARTx]->CR2 |= LINBreakInterruptState;
-    }
-
-    return Ret_ErrorStatus;
-}
-
-
-UART_ErrorStatus_t UART_TXLINBreak(uint8_t UARTx)
-{
-    UART_ErrorStatus_t Ret_ErrorStatus = UART_OK;
-
-    if(!IS_VALID_UART(UARTx))
-    {
-        Ret_ErrorStatus = UART_INVALID_UART;
-    }
-    else
-    {
-        /* do nothing */
-    }
-
-
-    if(Ret_ErrorStatus == UART_OK)
-    {
-        /* Disable UART to be able to send the break */
-//        UARTs[UARTx]->CR1 &= ~UART_UE_MASK;
-
         /* send break */
         UARTs[UARTx]->CR1 |= UART_LIN_SEND_BREAK;
-
-        /* wait till break is sent */
-//        while( (UARTs[UARTx]->CR1 & UART_LIN_SEND_BREAK) == 1);
-
-        /* Enable UART again */
-//        UARTs[UARTx]->CR1 |= UART_UE_MASK;
     }
 
     return Ret_ErrorStatus;
 }
+
 
 UART_ErrorStatus_t UART_SetLBDCallback(uint8_t UARTx, UART_LBDCallback_t cb)
 {
@@ -505,7 +461,6 @@ UART_ErrorStatus_t UART_SetLBDCallback(uint8_t UARTx, UART_LBDCallback_t cb)
     {
         /* do nothing */
     }
-
 
     if(Ret_ErrorStatus == UART_OK)
     {
@@ -525,160 +480,212 @@ UART_ErrorStatus_t UART_SetLBDCallback(uint8_t UARTx, UART_LBDCallback_t cb)
 
 void USART1_IRQHandler(void)
 {
-    if(UARTs[UART1]->SR & UART_TXE_MASK)
-    {
-        if(TXRequests[UART1_INDEX].Buffer.CurrIdx < TXRequests[UART1_INDEX].Buffer.Length)
-        {
-            UARTs[UART1]->DR = TXRequests[UART1_INDEX].Buffer.Data[TXRequests[UART1_INDEX].Buffer.CurrIdx];
-            TXRequests[UART1_INDEX].Buffer.CurrIdx++;
-        }
-        else
-        {
-            TXRequests[UART1_INDEX].State = READY;
-            /* DISABLE TXE interrupt */
-            UARTs[UART1]->CR1 &= ~UART_TXEIE_MASK;
+     /* NOTE: If a break is detected and interrupt happens, the TXE flag may be risen so
+        i choose to check for either the LIN break detection interrupt or the TXE and RXNE interrupt
+        becuase if i don't, everytime LBD interrupt happens the TXE will be handled if its flag is set
+        which will cause problems */
+	if(UARTs[UART1]->SR & UART_LBD_MASK)
+	{
+		/* Clear LBD Flag */
+		UARTs[UART1]->SR &= ~UART_LBD_MASK;
 
-            TXRequests[UART1_INDEX].Cb();
-        }
-    }
+		/* Call LBD Interrupt CB function if not NULL*/
+		if(LBDCallbacks[UART1])
+		{
+			LBDCallbacks[UART1]();
+		}
 
-    if(UARTs[UART1]->SR & UART_RXNE_MASK)
-    {
-        if(RXRequests[UART1_INDEX].Buffer.CurrIdx < RXRequests[UART1_INDEX].Buffer.Length)
-        {
-            RXRequests[UART1_INDEX].Buffer.Data[RXRequests[UART1_INDEX].Buffer.CurrIdx] = UARTs[UART1]->DR;
-            RXRequests[UART1_INDEX].Buffer.CurrIdx++;
+	}
 
-            if(RXRequests[UART1_INDEX].Buffer.CurrIdx == RXRequests[UART1_INDEX].Buffer.Length)
-            {
-                RXRequests[UART1_INDEX].State = READY;
-                /* DISABLE RXE interrupt */
-                UARTs[UART1]->CR1 &= ~UART_RXNEIE_MASK;
+	if(UARTs[UART1]->SR & UART_TXE_MASK)
+	{
+		if(TXRequests[UART1].State == BUSY)
+		{
+			if(TXRequests[UART1].Buffer.CurrIdx < TXRequests[UART1].Buffer.Length)
+			{
+				UARTs[UART1]->DR = TXRequests[UART1].Buffer.Data[TXRequests[UART1].Buffer.CurrIdx];
+				TXRequests[UART1].Buffer.CurrIdx++;
+			}
+			else
+			{
+				TXRequests[UART1].State = READY;
+				/* DISABLE TXE interrupt */
+				UARTs[UART1]->CR1 &= ~UART_TXEIE_MASK;
 
-                RXRequests[UART1_INDEX].Cb();
-            }
+                if(TXRequests[UART1].Cb)
+                {
+				    TXRequests[UART1].Cb();
+                }
+			}
+		}
 
-        }    
-    }
+	}
 
-    if(UARTs[UART1]->SR & UART_LBD_MASK)
-    {
-        /* Clear LBD Flag */
-        UARTs[UART1]->SR &= ~UART_LBD_MASK;
+	if(UARTs[UART1]->SR & UART_RXNE_MASK)
+	{
+		if(RXRequests[UART1].State == BUSY)
+		{
+			if(RXRequests[UART1].Buffer.CurrIdx < RXRequests[UART1].Buffer.Length)
+			{
+				RXRequests[UART1].Buffer.Data[RXRequests[UART1].Buffer.CurrIdx] = UARTs[UART1]->DR;
+				RXRequests[UART1].Buffer.CurrIdx++;
 
-        /* Call LBD Interrupt CB function if not NULL*/
-        if(LBDCallbacks[UART1])
-        {
-            LBDCallbacks[UART1]();
-        }
-        
-    }
+				if(RXRequests[UART1].Buffer.CurrIdx == RXRequests[UART1].Buffer.Length)
+				{
+					RXRequests[UART1].State = READY;
+					/* DISABLE RXE interrupt */
+					UARTs[UART1]->CR1 &= ~UART_RXNEIE_MASK;
+
+                    if(RXRequests[UART1].Cb)
+                    {
+                        RXRequests[UART1].Cb();
+                    }
+				}
+
+			}
+		}
+	}
 } 
 
 
 void USART2_IRQHandler(void)
 {
-    if(UARTs[UART2]->SR & UART_TXE_MASK)
-    {
-        if(TXRequests[UART2_INDEX].Buffer.CurrIdx < TXRequests[UART2_INDEX].Buffer.Length)
-        {
-            UARTs[UART2]->DR = TXRequests[UART2_INDEX].Buffer.Data[TXRequests[UART2_INDEX].Buffer.CurrIdx];
-            TXRequests[UART2_INDEX].Buffer.CurrIdx++;
-        }
-        else
-        {
-            TXRequests[UART2_INDEX].State = READY;
-            /* DISABLE TXE interrupt */
-            UARTs[UART2]->CR1 &= ~UART_TXEIE_MASK;
+    /* NOTE: If a break is detected and interrupt happens, the TXE flag may be risen so
+        i choose to check for either the LIN break detection interrupt or the TXE and RXNE interrupt
+        becuase if i don't, everytime LBD interrupt happens the TXE will be handled if its flag is set
+        which will cause problems */
+	if(UARTs[UART2]->SR & UART_LBD_MASK)
+	{
+		/* Clear LBD Flag */
+		UARTs[UART2]->SR &= ~UART_LBD_MASK;
 
-            TXRequests[UART2_INDEX].Cb();
-        }
-    }
+		/* Call LBD Interrupt CB function if not NULL*/
+		if(LBDCallbacks[UART2])
+		{
+			LBDCallbacks[UART2]();
+		}
 
-    if(UARTs[UART2]->SR & UART_RXNE_MASK)
-    {
-        if(RXRequests[UART2_INDEX].Buffer.CurrIdx < RXRequests[UART2_INDEX].Buffer.Length)
-        {
-            RXRequests[UART2_INDEX].Buffer.Data[RXRequests[UART2_INDEX].Buffer.CurrIdx] = UARTs[UART2]->DR;
-            RXRequests[UART2_INDEX].Buffer.CurrIdx++;
+	}
 
-            if(RXRequests[UART2_INDEX].Buffer.CurrIdx == RXRequests[UART2_INDEX].Buffer.Length)
-            {
-                RXRequests[UART2_INDEX].State = READY;
-                /* DISABLE RXE interrupt */
-                UARTs[UART2]->CR1 &= ~UART_RXNEIE_MASK;
+	if(UARTs[UART2]->SR & UART_TXE_MASK)
+	{
+		if(TXRequests[UART2].State == BUSY)
+		{
+			if(TXRequests[UART2].Buffer.CurrIdx < TXRequests[UART2].Buffer.Length)
+			{
+				UARTs[UART2]->DR = TXRequests[UART2].Buffer.Data[TXRequests[UART2].Buffer.CurrIdx];
+				TXRequests[UART2].Buffer.CurrIdx++;
+			}
+			else
+			{
+				TXRequests[UART2].State = READY;
+				/* DISABLE TXE interrupt */
+				UARTs[UART2]->CR1 &= ~UART_TXEIE_MASK;
 
-                RXRequests[UART2_INDEX].Cb();
-            }
+                if(TXRequests[UART2].Cb)
+                {
+				    TXRequests[UART2].Cb();
+                }
+			}
+		}
 
-        }    
-    }
+	}
 
-    if(UARTs[UART2]->SR & UART_LBD_MASK)
-        {
-            /* Clear LBD Flag */
-            UARTs[UART2]->SR &= ~UART_LBD_MASK;
+	if(UARTs[UART2]->SR & UART_RXNE_MASK)
+	{
+		if(RXRequests[UART2].State == BUSY)
+		{
+			if(RXRequests[UART2].Buffer.CurrIdx < RXRequests[UART2].Buffer.Length)
+			{
+				RXRequests[UART2].Buffer.Data[RXRequests[UART2].Buffer.CurrIdx] = UARTs[UART2]->DR;
+				RXRequests[UART2].Buffer.CurrIdx++;
 
-            /* Call LBD Interrupt CB function if not NULL*/
-            if(LBDCallbacks[UART2])
-            {
-                LBDCallbacks[UART2]();
-            }
+				if(RXRequests[UART2].Buffer.CurrIdx == RXRequests[UART2].Buffer.Length)
+				{
+					RXRequests[UART2].State = READY;
+					/* DISABLE RXE interrupt */
+					UARTs[UART2]->CR1 &= ~UART_RXNEIE_MASK;
 
-        }
+                    if(RXRequests[UART2].Cb)
+                    {
+                        RXRequests[UART2].Cb();
+                    }
+				}
+
+			}
+		}
+	}
+
 } 
 
 
 void USART6_IRQHandler(void)
 {
+    /* NOTE: If a break is detected and interrupt happens, the TXE flag may be risen so
+        i choose to check for either the LIN break detection interrupt or the TXE and RXNE interrupt
+        becuase if i don't, everytime LBD interrupt happens the TXE will be handled if its flag is set
+        which will cause problems */
+    if(UARTs[UART6]->SR & UART_LBD_MASK)
+    {
+        /* Clear LBD Flag */
+        UARTs[UART6]->SR &= ~UART_LBD_MASK;
+
+        /* Call LBD Interrupt CB function if not NULL*/
+        if(LBDCallbacks[UART6])
+        {
+            LBDCallbacks[UART6]();
+        }
+
+    }
+
     if(UARTs[UART6]->SR & UART_TXE_MASK)
     {
-        if(TXRequests[UART6_INDEX].Buffer.CurrIdx < TXRequests[UART6_INDEX].Buffer.Length)
+        if(TXRequests[UART6].State == BUSY)
         {
-            UARTs[UART6]->DR = TXRequests[UART6_INDEX].Buffer.Data[TXRequests[UART6_INDEX].Buffer.CurrIdx];
-            TXRequests[UART6_INDEX].Buffer.CurrIdx++;
-        }
-        else
-        {
-            TXRequests[UART6_INDEX].State = READY;
-            /* DISABLE TXE interrupt */
-            UARTs[UART6]->CR1 &= ~UART_TXEIE_MASK;
+            if(TXRequests[UART6].Buffer.CurrIdx < TXRequests[UART6].Buffer.Length)
+            {
+                UARTs[UART6]->DR = TXRequests[UART6].Buffer.Data[TXRequests[UART6].Buffer.CurrIdx];
+                TXRequests[UART6].Buffer.CurrIdx++;
+            }
+            else
+            {
+                TXRequests[UART6].State = READY;
+                /* DISABLE TXE interrupt */
+                UARTs[UART6]->CR1 &= ~UART_TXEIE_MASK;
 
-            TXRequests[UART6_INDEX].Cb();
+                if(TXRequests[UART6].Cb)
+                {
+				    TXRequests[UART6].Cb();
+                }
+            }
         }
+
     }
 
     if(UARTs[UART6]->SR & UART_RXNE_MASK)
     {
-        if(RXRequests[UART6_INDEX].Buffer.CurrIdx < RXRequests[UART6_INDEX].Buffer.Length)
+        if(RXRequests[UART6].State == BUSY)
         {
-            RXRequests[UART6_INDEX].Buffer.Data[RXRequests[UART6_INDEX].Buffer.CurrIdx] = UARTs[UART6]->DR;
-            RXRequests[UART6_INDEX].Buffer.CurrIdx++;
-
-            if(RXRequests[UART6_INDEX].Buffer.CurrIdx == RXRequests[UART6_INDEX].Buffer.Length)
+            if(RXRequests[UART6].Buffer.CurrIdx < RXRequests[UART6].Buffer.Length)
             {
-                RXRequests[UART6_INDEX].State = READY;
-                /* DISABLE TXE interrupt */
-                UARTs[UART6]->CR1 &= ~UART_RXNEIE_MASK;
+                RXRequests[UART6].Buffer.Data[RXRequests[UART6].Buffer.CurrIdx] = UARTs[UART6]->DR;
+                RXRequests[UART6].Buffer.CurrIdx++;
 
-                RXRequests[UART6_INDEX].Cb();
+                if(RXRequests[UART6].Buffer.CurrIdx == RXRequests[UART6].Buffer.Length)
+                {
+                    RXRequests[UART6].State = READY;
+                    /* DISABLE RXE interrupt */
+                    UARTs[UART6]->CR1 &= ~UART_RXNEIE_MASK;
+
+                    if(RXRequests[UART6].Cb)
+                    {
+                        RXRequests[UART6].Cb();
+                    }
+                }
+
             }
-
-        }    
-    }
-
-    if(UARTs[UART6]->SR & UART_LBD_MASK)
-        {
-            /* Clear LBD Flag */
-            UARTs[UART6]->SR &= ~UART_LBD_MASK;
-
-            /* Call LBD Interrupt CB function if not NULL*/
-            if(LBDCallbacks[UART6])
-            {
-                LBDCallbacks[UART6]();
-            }
-
         }
+    }
 } 
 
 

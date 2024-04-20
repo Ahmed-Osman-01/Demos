@@ -39,7 +39,7 @@ extern const SWITCH_Config_t Switches[_SWITCH_NUM];
 /*                               GLOBAL VARIABLES                         	    */
 /* ============================================================================ */
 
-static u8 G_States[_SWITCH_NUM];        /* Actual states of the switches after sampling */
+static uint8_t G_States[_SWITCH_NUM];        /* Actual states of the switches after sampling */
 
 /* ============================================================================ */
 /*                                  IMPLEMENTATION                           	*/
@@ -50,7 +50,7 @@ SWITCH_ErrorStatus_t SWITCH_Init(void)
    SWITCH_ErrorStatus_t Ret_ErrorStatus = SWITCH_OK;
 
    GPIO_Pin_t Local_Switch;
-   u8 Local_Iter;
+   uint8_t Local_Iter;
    Local_Switch.Speed = GPIO_SPEED_HIGH;
    Local_Switch.AF = GPIO_AF_SYSTEM;
 
@@ -84,10 +84,10 @@ consecutive samples then the switch state is updated.
 This is a Runnable that is called by Schedular                                                  */
 void SWITCH_Update(void)
 {
-    static u8 prevHWState[_SWITCH_NUM];     /* Prev state for each switch */
-    static u8 stateCount[_SWITCH_NUM];      /* Count number of consecutive similar states for each switch*/
-    u8 currHWState;                         /* Latest reading from HW */
-    u8 currSwitch;                          /* Iterator for switches */
+    static uint8_t prevHWState[_SWITCH_NUM];     /* Prev state for each switch */
+    static uint8_t stateCount[_SWITCH_NUM];      /* Count number of consecutive similar states for each switch*/
+    uint8_t currHWState;                         /* Latest reading from HW */
+    uint8_t currSwitch;                          /* Iterator for switches */
 
     for(currSwitch = 0; currSwitch < _SWITCH_NUM; currSwitch++)
     {
@@ -122,7 +122,7 @@ void SWITCH_Update(void)
     }
 }
 
-SWITCH_ErrorStatus_t SWITCH_GetSwitchState(SWITCH_ID_t Copy_SwitchID, u8 *Add_SwitchState)
+SWITCH_ErrorStatus_t SWITCH_GetSwitchState(SWITCH_ID_t Copy_SwitchID, uint8_t *Add_SwitchState)
 {
     SWITCH_ErrorStatus_t Ret_ErrorStatus = SWITCH_OK;
     if(Copy_SwitchID >= _SWITCH_NUM)

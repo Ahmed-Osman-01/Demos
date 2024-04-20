@@ -9,9 +9,9 @@
 #define COMM_LIN_SLAVE_LIN_SLAVEAPPDATA_H_
 
 
-void SlaveSendControls(u16 controls);
+void SlaveSendControls(uint16_t controls);
 
-void SlaveGetControls(u16 * controls);
+void SlaveGetControls(uint16_t * controls);
 
 
 

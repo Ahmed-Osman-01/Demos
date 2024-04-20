@@ -9,9 +9,9 @@
 #define COMM_LIN_MASTER_LIN_MASTERAPPDATA_H_
 
 
-void MasterSendControls(u16 controls);
+void MasterSendControls(uint16_t controls);
 
-void MasterGetControls(u16 * controls);
+void MasterGetControls(uint16_t * controls);
 
 
 #endif /* COMM_LIN_MASTER_LIN_MASTERAPPDATA_H_ */

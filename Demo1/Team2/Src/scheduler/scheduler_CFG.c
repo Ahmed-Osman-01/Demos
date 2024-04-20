@@ -11,6 +11,8 @@ extern Runnable stopWatch;
 extern Runnable LCD_Update;
 extern Runnable Keypad_Runnable;
 extern Runnable readSwitches;
+extern Runnable LIN_MasterTask;
+extern Runnable Transfere;
 const Runnable_USER_t Runnable_User [_RUNNABLE_NO] =
 {
     [Runnable_0] = {
@@ -54,6 +56,20 @@ const Runnable_USER_t Runnable_User [_RUNNABLE_NO] =
         .Priority = 0,
         .Periodicity = 200,
         .CB = (Runnable)&displayControl,
-        .First_Delay = 200
+        .First_Delay = 202
+    },
+    // [Runnable_6] = {
+    //     .Name = "Master task",
+    //     .Priority = 0,
+    //     .Periodicity = 2,
+    //     .CB = (Runnable)&LIN_MasterTask,
+    //     .First_Delay = 0
+    // },
+    [Runnable_7] = {
+        .Name = "Data Transfere",
+        .Priority = 0,
+        .Periodicity = 60,
+        .CB = (Runnable)&Transfere,
+        .First_Delay = 0,
     },
 };

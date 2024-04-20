@@ -30,8 +30,8 @@
  */
 #if LCD_MODE == LCD_8_BIT_MODE
 
-#define LCD_PIN_D0      GPIO_PIN_3
-#define LCD_PORT_D0     GPIO_PORT_A
+#define LCD_PIN_D0      GPIO_PIN_1 //3
+#define LCD_PORT_D0     GPIO_PORT_B // A
 
 #define LCD_PIN_D1      GPIO_PIN_4
 #define LCD_PORT_D1     GPIO_PORT_A
@@ -50,10 +50,10 @@
 #define LCD_PIN_D5      GPIO_PIN_8
 #define LCD_PORT_D5     GPIO_PORT_A
 
-#define LCD_PIN_D6      GPIO_PIN_9
-#define LCD_PORT_D6     GPIO_PORT_A
+#define LCD_PIN_D6      GPIO_PIN_9 
+#define LCD_PORT_D6     GPIO_PORT_A 
 
-#define LCD_PIN_D7      GPIO_PIN_10
+#define LCD_PIN_D7      GPIO_PIN_11
 #define LCD_PORT_D7     GPIO_PORT_A
 
 #define LCD_PIN_RS      GPIO_PIN_0
@@ -62,8 +62,8 @@
 #define LCD_PIN_RW      GPIO_PIN_1
 #define LCD_PORT_RW     GPIO_PORT_A
 
-#define LCD_PIN_E       GPIO_PIN_2
-#define LCD_PORT_E      GPIO_PORT_A
+#define LCD_PIN_E       GPIO_PIN_0 //2
+#define LCD_PORT_E      GPIO_PORT_B //A
 
 
 /**

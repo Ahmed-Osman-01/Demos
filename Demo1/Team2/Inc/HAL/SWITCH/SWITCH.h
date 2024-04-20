@@ -35,8 +35,8 @@
 typedef struct
 {
     void * Port;
-    u32 Pin;
-    u8 Connection;
+    uint32_t Pin;
+    uint8_t Connection;
 }SWITCH_Config_t;
 
 typedef enum
@@ -73,6 +73,6 @@ SWITCH_ErrorStatus_t SWITCH_Init(void);
  * @return SWITCH_ErrorStatus_t Switch module error status
  * @note Must Initialize the Switches first using SWITCH_Init() function
  */
-SWITCH_ErrorStatus_t SWITCH_GetSwitchState(SWITCH_ID_t Copy_SwitchID, u8 * Add_SwitchState);
+SWITCH_ErrorStatus_t SWITCH_GetSwitchState(SWITCH_ID_t Copy_SwitchID, uint8_t * Add_SwitchState);
 
 #endif /* HAL_SWITCH_SWITCH_H_ */

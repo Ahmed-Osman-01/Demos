@@ -13,7 +13,8 @@
 /************************************************Includes************************************************/
 /********************************************************************************************************/
 #include "HAL/KEYPAD/Keypad.h"
-
+#include "COMM/LIN_SLAVE/LIN_SlaveAppData.h"
+#include "MCAL/GPIO/GPIO.h"
 /********************************************************************************************************/
 /************************************************Defines*************************************************/
 /********************************************************************************************************/
@@ -34,7 +35,7 @@ enum switches{
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
 
-uint16_t Switches_Status = 0;
+uint16_t Controls;
 
 /********************************************************************************************************/
 /*********************************************APIs Implementation****************************************/
@@ -44,40 +45,42 @@ uint16_t Switches_Status = 0;
 void readSwitches (void)
 {
     char pressedKey;
-    Switches_Status = 0;
+    Controls = 0;
     KEYPAD_getPressedKey(&pressedKey);
     
     switch (pressedKey)
     {
         case 'U':
-            Switches_Status = (1 << Up);
+            Controls = (1 << Up);
             break;
         case 'D':
-            Switches_Status = (1 << Down);
+            Controls = (1 << Down);
             break;
         case 'L':
-            Switches_Status = (1 << Left);
+            Controls = (1 << Left);
             break;
         case 'R':
-            Switches_Status = (1 << Right);
+            Controls = (1 << Right);
             break;
         case 'S':
-            Switches_Status = (1 << Start);
+            Controls = (1 << Start);
             break;
         case 'P':
-            Switches_Status = (1 << Stop);
+            Controls = (1 << Stop);
             break;
         case 'E':
-            Switches_Status = (1 << Edit);
+            Controls = (1 << Edit);
             break;
         case 'M':
-            Switches_Status = (1 << Mode);
+            Controls = (1 << Mode);
             break;
         case 'K':
-            Switches_Status = (1 << Ok);
+            Controls = (1 << Ok);
+            GPIO_SetPinState(GPIO_PORT_B, GPIO_PIN_13,GPIO_STATE_HIGH);
             break;
         default:
-            Switches_Status = 0;
+            Controls = 0;
             break;
     }
+
 }

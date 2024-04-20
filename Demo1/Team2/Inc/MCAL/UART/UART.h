@@ -17,30 +17,30 @@
 /* ------------------------------------------------ */
 /*              Configuration Options               */
 /* ------------------------------------------------ */
-#define UART_WORDLENGTH_8               (u32)(0 << 12)
-#define UART_WORDLENGTH_9               (u32)(1 << 12)
+#define UART_WORDLENGTH_8               (uint32_t)(0 << 12)
+#define UART_WORDLENGTH_9               (uint32_t)(1 << 12)
 
-#define UART_PARITY_DISABLE         (u32)(0 << 10)
-#define UART_PARITY_ENABLE_EVEN     (u32)( (1 << 10) | (0 << 9))
-#define UART_PARITY_ENABLE_ODD      (u32)( (1 << 10) | (1 << 9))
+#define UART_PARITY_DISABLE         (uint32_t)(0 << 10)
+#define UART_PARITY_ENABLE_EVEN     (uint32_t)( (1 << 10) | (0 << 9))
+#define UART_PARITY_ENABLE_ODD      (uint32_t)( (1 << 10) | (1 << 9))
 
-#define UART_MODE_TX                (u32)(1 << 3)
-#define UART_MODE_RX                (u32)(1 << 2)
-#define UART_MODE_TX_RX             (u32)((1 << 3) | (1 << 2))
+#define UART_MODE_TX                (uint32_t)(1 << 3)
+#define UART_MODE_RX                (uint32_t)(1 << 2)
+#define UART_MODE_TX_RX             (uint32_t)((1 << 3) | (1 << 2))
 
-#define UART_SAMPLING_16            (u32)(0 << 15)
-#define UART_SAMPLING_8             (u32)(1 << 15)
+#define UART_SAMPLING_16            (uint32_t)(0 << 15)
+#define UART_SAMPLING_8             (uint32_t)(1 << 15)
 
-#define UART_LIN_ENABLED             (u32)(1 << 14)
-#define UART_LIN_DISABLED            (u32)(0 << 14)
+#define UART_LIN_ENABLED             (uint32_t)(1 << 14)
+#define UART_LIN_DISABLED            (uint32_t)(0 << 14)
 
-#define UART_LIN_BREAK_DETECTION_10     (u32)(0 << 5)
-#define UART_LIN_BREAK_DETECTION_11     (u32)(1 << 5)
+#define UART_LIN_BREAK_DETECTION_10     (uint32_t)(0 << 5)
+#define UART_LIN_BREAK_DETECTION_11     (uint32_t)(1 << 5)
 
-#define UART_LIN_BREAK_INTERRUPT_DISABLED    (u32)(0 << 6)
-#define UART_LIN_BREAK_INTERRUPT_ENABLED     (u32)(1 << 6)
+#define UART_LIN_BREAK_INTERRUPT_DISABLED    (uint32_t)(0 << 6)
+#define UART_LIN_BREAK_INTERRUPT_ENABLED     (uint32_t)(1 << 6)
 
-#define UART_LIN_SEND_BREAK     (u32)(1 << 0)
+#define UART_LIN_SEND_BREAK     (uint32_t)(1 << 0)
 
 /* ------------------------------------------------ */
 /*              Available UARTs                     */
@@ -70,12 +70,30 @@ typedef void (*UART_LBDCallback_t) (void);  /* LIN Break Detection Callback */
  */
 typedef struct
 {
-    u32 BaudRate;
-    u32 WordLength;
-    u32 Parity;
-    u32 Mode;
-    u32 Sampling;
+    uint32_t BaudRate;
+    uint32_t WordLength;
+    uint32_t Parity;
+    uint32_t Mode;
+    uint32_t Sampling;
 }UART_Config_t;
+
+
+/**
+ * @brief LIN configuraiton struct 
+ * 
+ * 
+ * @note ```State```: UART_LIN_ENABLED or UART_LIN_DISABLED
+ * @note ```BreakDetectLength```: UART_LIN_BREAK_DETECTION_10 or UART_LIN_BREAK_DETECTION_11
+ * @note ```BreakDetectInterrupt```: UART_LIN_BREAK_INTERRUPT_ENABLED or UART_LIN_BREAK_INTERRUPT_DISABLED
+ * 
+ */
+typedef struct
+{
+    uint32_t State;
+    uint32_t BreakDetectLength;
+    uint32_t BreakDetectInterrupt;
+}UART_LIN_Config_t;
+
 
 typedef enum
 {
@@ -106,7 +124,7 @@ typedef enum
  * @param config Configuration Struct
  * @return UART_ErrorStatus_t 
  */
-UART_ErrorStatus_t  UART_SetConfig(u8 UARTx, UART_Config_t* config);
+UART_ErrorStatus_t  UART_SetConfig(uint8_t UARTx, UART_Config_t* config);
 
 
 /**
@@ -116,7 +134,7 @@ UART_ErrorStatus_t  UART_SetConfig(u8 UARTx, UART_Config_t* config);
  * @param byte Byte to Send
  * @return UART_ErrorStatus_t 
  */
-UART_ErrorStatus_t UART_TXByte(u8 UARTx, u8 byte);
+UART_ErrorStatus_t UART_TXByte(uint8_t UARTx, uint8_t byte);
 
 
 /**
@@ -129,7 +147,7 @@ UART_ErrorStatus_t UART_TXByte(u8 UARTx, u8 byte);
  * @param cb Function to call after the transfere is completed
  * @return UART_ErrorStatus_t 
  */
-UART_ErrorStatus_t UART_TXBufferAsyncZC(u8  UARTx, u8 * buffer, u16 length, UART_ReqCallback_t cb );
+UART_ErrorStatus_t UART_TXBufferAsyncZC(uint8_t  UARTx, uint8_t * buffer, uint16_t length, UART_ReqCallback_t cb );
 
 
 /**
@@ -139,7 +157,7 @@ UART_ErrorStatus_t UART_TXBufferAsyncZC(u8  UARTx, u8 * buffer, u16 length, UART
  * @param byte Received byte
  * @return UART_ErrorStatus_t 
  */
-UART_ErrorStatus_t UART_RXByte(u8 UARTx, u8 *byte);
+UART_ErrorStatus_t UART_RXByte(uint8_t UARTx, uint8_t *byte);
 
 
 /**
@@ -152,17 +170,42 @@ UART_ErrorStatus_t UART_RXByte(u8 UARTx, u8 *byte);
  * @param cb Function to call after the buffer is filled (Received the buffer)
  * @return UART_ErrorStatus_t 
  */
-UART_ErrorStatus_t UART_RXBufferAsyncZC(u8 UARTx, u8 * buffer, u16 length, UART_ReqCallback_t cb );
+UART_ErrorStatus_t UART_RXBufferAsyncZC(uint8_t UARTx, uint8_t * buffer, uint16_t length, UART_ReqCallback_t cb );
 
 
-UART_ErrorStatus_t UART_SetLINState(u8 UARTx, u32 LINState);
 
-UART_ErrorStatus_t UART_SetLINBreakDetectionLength(u8 UARTx, u32 LINBreakDetectLength);
+/* ================================================================= */
+/*                        LIN RELATED APIS                           */
+/* ================================================================= */
 
-UART_ErrorStatus_t UART_SetLINBreakInterruptState(u8 UARTx, u32 LINBreakInterruptState);
 
-UART_ErrorStatus_t UART_TXLINBreak(u8 UARTx);
+/**
+ * @brief Configures the LIN in the specified UART
+ * 
+ * @param UARTx UART1, UART2 or UART6
+ * @param Config Pointer to configuration struct
+ * @return UART_ErrorStatus_t 
+ */
+UART_ErrorStatus_t UART_ConfigLIN(uint8_t UARTx, UART_LIN_Config_t* Config);
 
-UART_ErrorStatus_t UART_SetLBDCallback(u8 UARTx, UART_LBDCallback_t cb);
+
+
+/**
+ * @brief Sends a Break Sequence over the TX (13 0's)
+ * 
+ * @param UARTx UART1, UART2 or UART6
+ * @return UART_ErrorStatus_t 
+ */
+UART_ErrorStatus_t UART_SendBreak(uint8_t UARTx);
+
+
+/**
+ * @brief Sets the callback function to call when LBD Interrupt happens
+ * 
+ * @param UARTx UART1, UART2 or UART6
+ * @param cb The callback function
+ * @return UART_ErrorStatus_t 
+ */
+UART_ErrorStatus_t UART_SetLBDCallback(uint8_t UARTx, UART_LBDCallback_t cb);
 
 #endif /* MCAL_UART_UART_H_ */

@@ -5,7 +5,8 @@
  *      Author: Osman
  */
 
-#include "LIB/STD_TYPES.h"
+#include <stdint.h>
+
 #include "COMM/LIN_MASTER/LIN_Types.h"
 #include "COMM/LIN_MASTER/LIN_Master_config.h"
 
@@ -82,6 +83,6 @@ const LIN_Message_t MasterMessages[LIN_MASTER_MESSAGES_NUM] =
 
 const LIN_SchedTableEntry_t schedTable[SCHED_ENTRY_NUM] = 
 {
-    [0] = {.message = &slave1Messages[0], .timeSlotMs = 100},
-    [1] = {.message = &slave1Messages[1], .timeSlotMs = 100}
+    [0] = {.message = &slave1Messages[0], .timeSlotMs = 10},
+    [1] = {.message = &slave1Messages[1], .timeSlotMs = 10}
 };

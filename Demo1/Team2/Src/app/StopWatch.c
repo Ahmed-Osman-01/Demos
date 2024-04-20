@@ -118,7 +118,7 @@ void stopWatch(void)
 #if 0
 else if (Switches_Status & STOP_MASK)
     {
-        u8 idx = 0;
+        uint8_t idx = 0;
         for(idx = 0 ; idx < 7; idx++)
         {
                 stopWatchTime[idx] = 0;

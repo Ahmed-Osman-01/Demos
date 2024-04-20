@@ -5,6 +5,11 @@
  *      Author: Osman
  */
 
+#ifndef NULL
+#define NULL    ((void*)0)
+#endif
+
+#include <stdint.h>
 
 #include "LIB/STD_TYPES.h"
 #include "MCAL/GPIO/GPIO.h"
@@ -23,20 +28,20 @@ extern const LIN_SchedTableEntry_t schedTable[2];
 extern const LIN_Message_t MasterMessages[2];
 
 static const LIN_Message_t * currMsgMaster = NULL;
-static u8 headerBuffer[2];
-static u8 tempRecieveBuffer[9];
-static u8 tempSendBuffer[9];
+static uint8_t headerBuffer[2];
+static uint8_t tempRecieveBuffer[9];
+static uint8_t tempSendBuffer[9];
 
 
 static void LIN_SlaveTask(void);
 static void SendData(void);
 static void ReceiveData(void);
-static u8 Calculate_Checksum(u8 PID, u8 *data, u8 size);
+static uint8_t Calculate_Checksum(uint8_t PID, uint8_t *data, uint8_t size);
 
 
-void LIN_MasterGetData(u8 * data)
+void LIN_MasterGetData(uint8_t * data)
 {
-    u8 iter;
+    uint8_t iter;
 
     for(iter = 0; iter < MasterMessages[0].dataLength; iter++)
     {
@@ -44,9 +49,9 @@ void LIN_MasterGetData(u8 * data)
     }
 }
 
-void LIN_MasterSendData(u8 * data)
+void LIN_MasterSendData(uint8_t * data)
 {
-    u8 iter;
+    uint8_t iter;
 
     for(iter = 0; iter < MasterMessages[1].dataLength; iter++)
     {
@@ -70,13 +75,13 @@ static void sendHeader(LIN_Message_t * msg)
 
 void SendData(void)
 {
-    u8 checksum;
+    uint8_t checksum;
 
-    u8 iter;
+    uint8_t iter;
     checksum = Calculate_Checksum(currMsgMaster->PID, currMsgMaster->data, currMsgMaster->dataLength);
 
 
-    for(iter = 0; iter < currMsgMaster->dataLength; iter++)   // ------->> is there a better way??
+    for(iter = 0; iter < currMsgMaster->dataLength; iter++)  
     {
         tempSendBuffer[iter] = currMsgMaster->data[iter];
     }
@@ -90,14 +95,13 @@ void SendData(void)
 
 static void ReceiveData(void)
 {
-    u8 checksum;
-    u8 iter;
+    uint8_t checksum;
+    uint8_t iter;
 
     checksum = Calculate_Checksum(currMsgMaster->PID, tempRecieveBuffer, currMsgMaster->dataLength);
 
     if(checksum == tempRecieveBuffer[currMsgMaster->dataLength])
     {
-        /* correct datat */
         /* put it in the data so upper layer can extract it */
         for(iter = 0; iter < currMsgMaster->dataLength; iter++)
         {
@@ -161,8 +165,8 @@ void LIN_MasterInit(void)
 /* Peiodic task */
 void LIN_MasterTask(void)
 {
-    static u8 timeMs = 0;
-    static u8 idx = 0;
+    static uint8_t timeMs = 0;
+    static uint8_t idx = 0;
 
     if(timeMs == 0)
     {
@@ -186,7 +190,7 @@ void LIN_MasterTask(void)
 
 static void LIN_SlaveTask(void)
 {
-    u8 iter;
+    uint8_t iter;
     currMsgMaster = NULL;
 
     for(iter = 0; iter < LIN_MASTER_MESSAGES_NUM; iter++)
@@ -217,10 +221,10 @@ static void LIN_SlaveTask(void)
 }
 
 
-static u8 Calculate_Checksum(u8 PID, u8 *data, u8 size)
+static uint8_t Calculate_Checksum(uint8_t PID, uint8_t *data, uint8_t size)
 {
-    u8 sum = PID;
-    u16 i;
+    uint8_t sum = PID;
+    uint16_t i;
 
     for (i = 0; i < size; i++)
     {

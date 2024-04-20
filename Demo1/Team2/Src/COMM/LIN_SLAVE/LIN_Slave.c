@@ -5,8 +5,12 @@
  *      Author: Osman
  */
 
+#ifndef NULL
+#define NULL    ((void*)0)
+#endif
 
-#include "LIB/STD_TYPES.h"
+#include <stdint.h>
+
 #include "MCAL/GPIO/GPIO.h"
 
 #include "MCAL/UART/UART.h"
@@ -17,13 +21,13 @@
 #include "COMM/LIN_SLAVE/LIN_Types.h"
 
 
-#define PARITY_MASK     ((u32)(3 << 6))
+#define PARITY_MASK     ((uint32_t)(3 << 6))
 #define ASYNC_BYTE      0x55
 
 
-static u8 HeaderBuffer[2];
-static u8 tempSendBuffer[9];
-static u8 tempReceiveBuffer[9];
+static uint8_t HeaderBuffer[2];
+static uint8_t tempSendBuffer[9];
+static uint8_t tempReceiveBuffer[9];
 static const LIN_Message_t * currMsgSlave = NULL;
 
 extern const LIN_Message_t slave1Messages[2];
@@ -33,8 +37,8 @@ static void SlaveTask(void);
 static void BreakCallback(void);
 static void SendData(void);
 static void ReceiveData(void);
-static u8 CalculatePid(u8 ID);
-static u8 Calculate_Checksum(u8 PID, u8 *data, u8 size);
+static uint8_t CalculatePid(uint8_t ID);
+static uint8_t Calculate_Checksum(uint8_t PID, uint8_t *data, uint8_t size);
 
 
 
@@ -91,9 +95,9 @@ static void BreakCallback(void)
 
 static void SlaveTask(void)
 {
-    u8 iter;
+    uint8_t iter;
     currMsgSlave = NULL;
-    u8 PID;
+    uint8_t PID;
  
 
     if(HeaderBuffer[0] == ASYNC_BYTE)
@@ -143,8 +147,8 @@ static void SlaveTask(void)
 
 static void SendData(void)
 {
-    u8 checksum;
-    u8 iter;
+    uint8_t checksum;
+    uint8_t iter;
 
     checksum = Calculate_Checksum(currMsgSlave->PID, currMsgSlave->data, currMsgSlave->dataLength);
 
@@ -161,8 +165,8 @@ static void SendData(void)
 
 static void ReceiveData(void)
 {
-    u8 checksum;
-    u8 iter;
+    uint8_t checksum;
+    uint8_t iter;
 
     checksum = Calculate_Checksum(currMsgSlave->PID, tempReceiveBuffer, currMsgSlave->dataLength);
 
@@ -182,10 +186,10 @@ static void ReceiveData(void)
 }
 
 
-u8 CalculatePid(u8 ID)
+uint8_t CalculatePid(uint8_t ID)
 {
-    u8 iter;
-    u8 PID;
+    uint8_t iter;
+    uint8_t PID;
 
     if (ID > 0x3F)
     {
@@ -193,24 +197,24 @@ u8 CalculatePid(u8 ID)
     }
     else
     {
-        u8 IDBuf[6];
+        uint8_t IDBuf[6];
         for (iter = 0; iter < 6; iter++)
         {
             IDBuf[iter] = (ID >> iter) & 0x01;
         }
 
-        u8 P0 = (IDBuf[0] ^ IDBuf[1] ^ IDBuf[2] ^ IDBuf[4]) & 0x01;
-        u8 P1 = (~(IDBuf[1] ^ IDBuf[3] ^ IDBuf[4] ^ IDBuf[5])) & 0x01;
+        uint8_t P0 = (IDBuf[0] ^ IDBuf[1] ^ IDBuf[2] ^ IDBuf[4]) & 0x01;
+        uint8_t P1 = (~(IDBuf[1] ^ IDBuf[3] ^ IDBuf[4] ^ IDBuf[5])) & 0x01;
 
         PID = ID | (P0 << 6) | (P1 << 7);
     }
     return PID;
 }
 
-static u8 Calculate_Checksum(u8 PID, u8 *data, u8 size)
+static uint8_t Calculate_Checksum(uint8_t PID, uint8_t *data, uint8_t size)
 {
-    u8 sum = PID;
-    u16 i;
+    uint8_t sum = PID;
+    uint16_t i;
 
     for (i = 0; i < size; i++)
     {

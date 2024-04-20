@@ -33,7 +33,7 @@ const LIN_Message_t slave1Messages[SLAVE1_MESSAGES_COUNT] =
         .relation = Sender,
         .signalsNum = 2,
         .signals[0] = &signals[0],
-        .signals[1] = &signals[2]
+        .signals[1] = &signals[1]
 
     },
     [1] = 
@@ -45,6 +45,7 @@ const LIN_Message_t slave1Messages[SLAVE1_MESSAGES_COUNT] =
         .relation = Receiver,
         .signalsNum = 1,
         .signals[0] = &signals[0],
+        .signals[1] = &signals[1],
     }
 };
 

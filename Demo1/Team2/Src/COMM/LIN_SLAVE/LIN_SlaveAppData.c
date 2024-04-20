@@ -10,14 +10,16 @@
 
 extern const LIN_Message_t slave1Messages[2];
 
-void SlaveSendControls(u16 controls)
+void SlaveSendControls(uint16_t controls)
 {
-	slave1Messages[0].data[0] = (u8)controls;
-	slave1Messages[0].data[1] = (u8)(controls>>8);
+	slave1Messages[0].data[0] = ((uint8_t)controls) & 0x0f;
+	// slave1Messages[0].data[1] = ((uint8_t)(controls>>8)) & 0x1f; // 0000 0000 0000 0000
+	slave1Messages[0].data[1] = ((uint8_t)(controls>>4)); // 0000 0000 0000 0000
 }
 
 
-void SlaveGetControls(u16 * controls)  
+void SlaveGetControls(uint16_t * controls)  
 {
-	*controls = ((u16)slave1Messages[1].data[0]) | ((u16)slave1Messages[1].data[1] << 8);
+	// *controls = ((uint16_t)slave1Messages[1].data[0]) | ((uint16_t)slave1Messages[1].data[1] << 8);
+	*controls = ((uint16_t)slave1Messages[1].data[0]) | (((uint16_t)slave1Messages[1].data[1]) << 4);
 }
