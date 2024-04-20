@@ -11,6 +11,6 @@ typedef enum
     _MASTER_MSG_NUM
 } Master_MSG_t;
 
-#define MASTER_CALL_PERIOD 100
+#define MASTER_CALL_PERIOD 2
 
 #endif

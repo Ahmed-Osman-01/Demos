@@ -18,9 +18,9 @@
 /********************************************************************************************************/
 /************************************************Defines*************************************************/
 /********************************************************************************************************/
-#define EDIT_MASK           0x0004
-#define MODE_MASK           0x0008
-#define OK_MASK             0x0010
+#define EDIT_MASK           0x0040
+#define MODE_MASK           0x0080
+#define OK_MASK             0x0100
 
 /********************************************************************************************************/
 /************************************************Types***************************************************/
@@ -60,7 +60,7 @@ enum cursorPos{
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
 uint8_t displayState = DateTimeMode;
-extern volatile uint8_t Switches_Status_Control;
+extern volatile uint16_t Switches_Status;
 extern volatile uint16_t Time[7];
 extern volatile uint16_t Date[8];
 extern volatile uint16_t stopWatchTime[7];
@@ -201,7 +201,7 @@ void displayControl (void)
             LCD_WriteCommandAsync(LCD_COMM_CURSOR_OFF, NULL_PTR);
             DisplayTime();   
             DisplayDate();                                                                              
-            if(Switches_Status_Control &  EDIT_MASK)
+            if(Switches_Status &  EDIT_MASK)
             {
                 LCD_ClearScreenAsync(NULL_PTR);
                 displayState = EditTimeMode;
@@ -214,7 +214,7 @@ void displayControl (void)
                 //LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL_PTR);
                 NOT_EDIT_DIGIT = 1;
             }
-            else if(Switches_Status_Control & MODE_MASK)
+            else if(Switches_Status & MODE_MASK)
             {
                 LCD_ClearScreenAsync(NULL_PTR);
                 displayState = StopWatchMode;
@@ -227,7 +227,7 @@ void displayControl (void)
         case StopWatchMode:
             DisplayDate();
             DisplayStopWatch();
-            if(Switches_Status_Control &  MODE_MASK)
+            if(Switches_Status &  MODE_MASK)
             {
                 LCD_ClearScreenAsync(NULL_PTR);
                 displayState = DateTimeMode;
@@ -240,7 +240,7 @@ void displayControl (void)
                 case Edit_Mode:
                     trackCursor();
                     //validateCursorPos(cursor_pos[x_pos],cursor_pos[y_pos]);
-                    if((Switches_Status_Control & EDIT_MASK) /*&& validCursorPos*/ && !NOT_EDIT_DIGIT)
+                    if((Switches_Status & EDIT_MASK) /*&& validCursorPos*/ && !NOT_EDIT_DIGIT)
                     {
                         Edit_state = Edit_Digit;
                     }
@@ -249,14 +249,14 @@ void displayControl (void)
                 case Edit_Digit:
                     EditTime();
                     EditDate();
-                    if(Switches_Status_Control & OK_MASK)
+                    if(Switches_Status & OK_MASK)
                     {  
                         Edit_state = Edit_Mode;
                         EDIT_DIGIT_FLAG = 1;
                     }
                     break;
             }
-            if((Switches_Status_Control & OK_MASK) && !EDIT_DIGIT_FLAG)
+            if((Switches_Status & OK_MASK) && !EDIT_DIGIT_FLAG)
             {
                 LCD_ClearScreenAsync(NULL_PTR);
                 displayState = DateTimeMode;

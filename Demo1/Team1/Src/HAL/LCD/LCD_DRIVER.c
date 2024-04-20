@@ -122,7 +122,6 @@ Error_Status LCD_Init()
     LcdPins[NUMBER_OF_DATA_LINES + 2].Speed = GPIO_SPEED_MED;
 
     LOC_Status = GPIO_Init(LcdPins, LCD_TOTAL_PINS_NUM);
-
     LCD_State = LCD_STATE_INIT;
     return LOC_Status;
 }

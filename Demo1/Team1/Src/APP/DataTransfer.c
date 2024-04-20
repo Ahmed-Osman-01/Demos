@@ -16,15 +16,13 @@
 #include "LIB/std_types.h"
 #include "HAL/LIN/LIN_MASTER/LIN_MasterAppData.h"
 
-uint8_t Switches_CTRL_Control;
-uint8_t Switches_CTRL_Directions;
-uint8_t Switches_Status_Control;
-uint8_t Switches_Status_Directions;
+volatile uint16_t Switches_Status;
+volatile uint16_t Switches_Status_send;
 
 
 void DataTransferTask()
 
 {
-    MasterGetControls(&Switches_Status_Control,&Switches_Status_Directions);
-    MasterSendControls(Switches_CTRL_Control,Switches_CTRL_Directions);
+    MasterGetControls(&Switches_Status);
+    MasterSendControls(Switches_Status_send);
 }

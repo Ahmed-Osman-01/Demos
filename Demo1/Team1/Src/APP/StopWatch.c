@@ -20,9 +20,9 @@
 /********************************************************************************************************/
 #define MILLIS_PER_SECOND       1000
 #define HOURS_PER_DAY           24
-#define START_MASK              0x01
-#define STOP_MASK               0x02
-#define RESET_MASK              0x20
+#define START_MASK              0x10
+#define STOP_MASK               0x20
+#define UP_MASK                 0x01
 
 enum time {
     millisecond,
@@ -37,7 +37,7 @@ enum time {
 /********************************************************************************************************/
 /************************************************Variables***********************************************/
 /********************************************************************************************************/
-extern volatile uint8_t Switches_Status_Control;
+extern volatile uint16_t Switches_Status;
 
 volatile uint8_t start_flag = 0;
 
@@ -56,11 +56,11 @@ uint16_t stopWatchTime[7] = {
 /********************************************************************************************************/
 static void StopWatchFeature(void)
 {
-    if(Switches_Status_Control & STOP_MASK)
+    if(Switches_Status & STOP_MASK)
     {
         start_flag = 0;
     }
-    else if (Switches_Status_Control & RESET_MASK)
+    else if (Switches_Status & UP_MASK)
     {
         uint8_t idx = 0;
         for(idx = 0 ; idx < 7; idx++)
@@ -69,7 +69,7 @@ static void StopWatchFeature(void)
         }
         start_flag = 0;
     }
-    else if ((Switches_Status_Control & START_MASK) || start_flag)
+    else if ((Switches_Status & START_MASK) || start_flag)
     {
         start_flag = 1;
         stopWatchTime[millisecond] += 100;

@@ -106,8 +106,7 @@ sint16_t EditedDate[8] ={
 };
 
 uint8_t validCursorPos = 0;
-extern uint8_t Switches_Status_Control;
-extern uint8_t Switches_Status_Directions;
+extern uint16_t Switches_Status;
 extern uint16_t Time[7];
 extern uint16_t Date[8];
 extern volatile uint8_t temp4[13];
@@ -117,7 +116,7 @@ extern volatile uint8_t temp5[11];
 /********************************************************************************************************/
 void trackCursor(void)
 {
-    if(Switches_Status_Directions & UP_MASK)
+    if(Switches_Status & UP_MASK)
     {
         cursor_pos[y_pos]--;
         if(cursor_pos[y_pos] < 0)
@@ -126,7 +125,7 @@ void trackCursor(void)
         }
         LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
-    else if(Switches_Status_Directions & DOWN_MASK)
+    else if(Switches_Status & DOWN_MASK)
     {
         cursor_pos[y_pos]++;
         if(cursor_pos[y_pos] > 1)
@@ -135,7 +134,7 @@ void trackCursor(void)
         }
         LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
-    else if(Switches_Status_Directions & LEFT_MASK)
+    else if(Switches_Status & LEFT_MASK)
     {
         cursor_pos[x_pos]--;
         if(cursor_pos[x_pos] < 0)
@@ -144,7 +143,7 @@ void trackCursor(void)
         }
         LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
     }
-    else if(Switches_Status_Directions & RIGHT_MASK)
+    else if(Switches_Status & RIGHT_MASK)
     {
         cursor_pos[x_pos]++;
         if(cursor_pos[x_pos] > 15)
@@ -197,7 +196,7 @@ void EditTime (void)
 {
     if(cursor_pos[x_pos] == HOUR2_POS_X && cursor_pos[y_pos] == TIME_POS_Y )
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedTime[hour2]++;
             if(EditedTime[hour2] > 2)
@@ -209,7 +208,7 @@ void EditTime (void)
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
             
         }
-        else if(Switches_Status_Directions & DOWN_MASK)
+        else if(Switches_Status & DOWN_MASK)
         {
             EditedTime[hour2]--;
             if(EditedTime[hour2] < 0)
@@ -227,7 +226,7 @@ void EditTime (void)
     }
     else if (cursor_pos[x_pos] == HOUR1_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        if (Switches_Status_Directions & UP_MASK)
+        if (Switches_Status & UP_MASK)
         {
             EditedTime[hour1]++;
             if (EditedTime[hour1] > 9)
@@ -242,7 +241,7 @@ void EditTime (void)
             LCD_WriteStringAsync(&temp4[1], 1, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedTime[hour1]--;
             if (EditedTime[hour1] < 0)
@@ -257,7 +256,7 @@ void EditTime (void)
     }
     else if (cursor_pos[x_pos] == MINUTES2_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        if (Switches_Status_Directions & UP_MASK)
+        if (Switches_Status & UP_MASK)
         {
             EditedTime[min2]++;
             if (EditedTime[min2] > 5)
@@ -269,7 +268,7 @@ void EditTime (void)
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
             
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedTime[min2]--;
             if (EditedTime[min2] < 0)
@@ -284,7 +283,7 @@ void EditTime (void)
     }
     else if (cursor_pos[x_pos] == MINUTES1_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        if (Switches_Status_Directions & UP_MASK)
+        if (Switches_Status & UP_MASK)
         {
             EditedTime[min1]++;
             if (EditedTime[min1] > 9)
@@ -296,7 +295,7 @@ void EditTime (void)
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
             
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedTime[min1]--;
             if (EditedTime[min1] < 0)
@@ -312,7 +311,7 @@ void EditTime (void)
     }
     else if (cursor_pos[x_pos] == SECONDS2_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        if (Switches_Status_Directions & UP_MASK)
+        if (Switches_Status & UP_MASK)
         {
             EditedTime[sec2]++;
             if (EditedTime[sec2] > 5)
@@ -324,7 +323,7 @@ void EditTime (void)
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
             
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedTime[sec2]--;
             if (EditedTime[sec2] < 0)
@@ -339,7 +338,7 @@ void EditTime (void)
     }
     else if (cursor_pos[x_pos] == SECONDS1_POS_X && cursor_pos[y_pos] == TIME_POS_Y)
     {
-        if (Switches_Status_Directions & UP_MASK)
+        if (Switches_Status & UP_MASK)
         {
             EditedTime[sec1]++;
             if (EditedTime[sec1] > 9)
@@ -351,7 +350,7 @@ void EditTime (void)
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
             
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedTime[sec1]--;
             if (EditedTime[sec1] < 0)
@@ -371,7 +370,7 @@ void EditDate(void)
 {
     if(cursor_pos[x_pos] == DAY2_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[day2]++;
             if(EditedDate[day2] > 3)
@@ -392,7 +391,7 @@ void EditDate(void)
             LCD_WriteStringAsync(temp5, 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[day2]--;
             if(EditedDate[day2] < 0)
@@ -407,7 +406,7 @@ void EditDate(void)
     }
     else if(cursor_pos[x_pos] == DAY1_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[day1]++;
             if(EditedDate[day2] == 3)
@@ -439,7 +438,7 @@ void EditDate(void)
             LCD_WriteStringAsync((temp5), 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[day1]--;
             if(EditedDate[day2] == 3)
@@ -474,7 +473,7 @@ void EditDate(void)
     }
     else if(cursor_pos[x_pos] == MONTH2_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[month2]++;
             if(EditedDate[month2] > 1)
@@ -491,7 +490,7 @@ void EditDate(void)
             LCD_WriteStringAsync((temp5), 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[month2]--;
             if(EditedDate[month2] < 0)
@@ -506,7 +505,7 @@ void EditDate(void)
     }
     else if(cursor_pos[x_pos] == MONTH1_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[month1]++;
             if(EditedDate[month2] == 1)
@@ -528,7 +527,7 @@ void EditDate(void)
             LCD_WriteStringAsync(temp5, 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[month1]--;
             if (EditedDate[month2] == 0)
@@ -553,7 +552,7 @@ void EditDate(void)
     else if(cursor_pos[x_pos] == YEAR4_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
         uint8_t year1 = (EditedDate[year4] / 1000);
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[year4]++;
             if(EditedDate[year4] > 9)
@@ -565,7 +564,7 @@ void EditDate(void)
             LCD_WriteStringAsync(temp5, 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[year4]--;
             if(EditedDate[year4] < 0)
@@ -580,7 +579,7 @@ void EditDate(void)
     }
     else if(cursor_pos[x_pos] == YEAR3_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[year3]++;
             if(EditedDate[year3] > 9)
@@ -592,7 +591,7 @@ void EditDate(void)
             LCD_WriteStringAsync(temp5, 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[year3]--;
             if(EditedDate[year3] < 0)
@@ -607,7 +606,7 @@ void EditDate(void)
     }
     else if(cursor_pos[x_pos] == YEAR2_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[year2]++;
             if(EditedDate[year2] > 9)
@@ -619,7 +618,7 @@ void EditDate(void)
             LCD_WriteStringAsync(temp5, 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[year2]--;
             if(EditedDate[year2] < 0)
@@ -634,7 +633,7 @@ void EditDate(void)
     }
     else if(cursor_pos[x_pos] == YEAR1_POS_X && cursor_pos[y_pos] == DATE_POS_Y)
     {
-        if(Switches_Status_Directions & UP_MASK)
+        if(Switches_Status & UP_MASK)
         {
             EditedDate[year1]++;
             if(EditedDate[year1] > 9)
@@ -646,7 +645,7 @@ void EditDate(void)
             LCD_WriteStringAsync(temp5, 11, NULL);
             LCD_SetCursorPositionAsync(cursor_pos[y_pos],cursor_pos[x_pos], NULL);
         }
-        else if (Switches_Status_Directions & DOWN_MASK)
+        else if (Switches_Status & DOWN_MASK)
         {
             EditedDate[year1]--;
             if(EditedDate[year1] < 0)
