@@ -64,5 +64,5 @@ const LIN_Message_t Master_Messages[_MASTER_MSG_NUM] =
 
 const LIN_SchedTableEntry_t SchedTable[SCHED_TABLE_MESSAGES_NUM] =
     {
-        [0] = {.Message = &Master_Messages[0], .TimeSlotMs = 10},
-        [1] = {.Message = &Master_Messages[1], .TimeSlotMs = 10}};
+        [0] = {.Message = &Master_Messages[0], .TimeSlotMs = 50},
+        [1] = {.Message = &Master_Messages[1], .TimeSlotMs = 50}};

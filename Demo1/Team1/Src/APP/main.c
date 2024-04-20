@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 	.LIN_IRQ = USART_LIN_IRQ_ENABLE, .LIN_BreakLength = USART_LIN_BRK_LENGTH_11};
 
   	LIN_MasterInit(LIN_Arr1);
+	//LIN_SlaveInit(LIN_Arr1);
 	KEYPAD_Init();
 	LCD_Init();
 

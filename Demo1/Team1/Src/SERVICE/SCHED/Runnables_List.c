@@ -23,50 +23,50 @@ const runnable_t Runnables_List[_Runnables_Num] =
 		[Keypad_R] = {
 			.name = "Keypad runnable for checking the pressed key",
 			.periodicityMS = 6,
-			//.firstDelayMS = 30,
+			.firstDelayMS = 0,
 			.callBackFn = &Keypad_Runnable
 		},
 		[readSwitches_R] = {
 			.name = "ReadSwitches From Keypad and Assign to a variable",
 			.periodicityMS = 60,
-			//.firstDelayMS = 60,
+			.firstDelayMS = 30,
 			.callBackFn = &readSwitches
 		},
 		[LCD_R] = {
 			.name = "LCD Runnable for LCD intialization and control",
 			.periodicityMS = 2,
-			//.firstDelayMS = 0,
+			.firstDelayMS = 0,
 			.callBackFn = &LCD_Runnable,
 		},
 		[DateTime_R]={
 			.name = "Calculate Date and Time",
 			.periodicityMS = 100,
-			//.firstDelayMS = 0,
+			.firstDelayMS = 200,
 			.callBackFn = &DateTime
 		},
 		[StopWatch_R]={
 			.name = "For stopwatch increment",
 			.periodicityMS = 100,
-			//.firstDelayMS = 0,
+			.firstDelayMS = 200,
 			.callBackFn = &stopWatch
 		},
 		[DisplayControl_R]=
 		{
 			.name = "Displaying on LCD",
 			.periodicityMS = 200,
-			//.firstDelayMS = 0,
+			.firstDelayMS = 202,
 			.callBackFn = &displayControl
 		},
 		[LIN_MasterTask_R]={
-			.name = "Lin Master Task",
-			.periodicityMS = 2,
-			//.firstDelayMS = 0,
-			.callBackFn = &LIN_MasterTask
+		 	.name = "Lin Master Task",
+		 	.periodicityMS = 2,
+		 	.firstDelayMS = 0,
+		 	.callBackFn = &LIN_MasterTask
 		},
 		[Data_Transfer_R]={
 			.name = "TransferData",
 			.periodicityMS = 60,
-			//.firstDelayMS = 0,
+			.firstDelayMS = 0,
 			.callBackFn = &DataTransferTask
 		}
 };

@@ -18,22 +18,32 @@
 #define SCHED_TICK_TIME_MS 2
 
 
+typedef struct
+{
+    runnable_t *Runnable;
+    uint32_t Remining_time;
+} runInfo_t;
+
+
 static volatile uint32_t pendingTicks = 0;
 
 extern const runnable_t Runnables_List[_Runnables_Num];
 
+volatile runInfo_t runnableInfoList[_Runnables_Num];
+
+
 static void Sched()
 {
 	uint32_t iterator = 0;
-	static uint32_t timeStamp = 0;
 	for(iterator = 0 ; iterator < _Runnables_Num;iterator++)
 	{
-		if((Runnables_List[iterator].callBackFn) && ((timeStamp % Runnables_List[iterator].periodicityMS) == 0))
+		if((runnableInfoList[iterator].Runnable->callBackFn) && ((runnableInfoList[iterator].Remining_time) == 0))
 		{
-			Runnables_List[iterator].callBackFn();
+			runnableInfoList[iterator].Remining_time = runnableInfoList[iterator].Runnable->periodicityMS;
+			runnableInfoList[iterator].Runnable->callBackFn();
 		}
+		runnableInfoList[iterator].Remining_time -= SCHED_TICK_TIME_MS;
 	}
-	timeStamp+= SCHED_TICK_TIME_MS;
 }
 
 void Sched_TickCallBack(void)
@@ -43,8 +53,15 @@ void Sched_TickCallBack(void)
 
 void Sched_Init()
 {
+	uint32_t iterator = 0;
 	SYSTICK_setTimeMS(SCHED_TICK_TIME_MS);
 	SYSTICK_setCallBack(Sched_TickCallBack, 0);
+	for(iterator = 0 ; iterator < _Runnables_Num;iterator++)
+	{
+		runnableInfoList[iterator].Runnable = &Runnables_List[iterator];
+		runnableInfoList[iterator].Remining_time = Runnables_List[iterator].firstDelayMS;
+	}
+
 }
 
 void Sched_Start()
@@ -59,5 +76,3 @@ void Sched_Start()
 		}
 	}
 }
-
-
